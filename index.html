@@ -1,0 +1,3295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Match Pro – Academic Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
+<style>
+:root {
+  /* === OFFICIAL COLOR PALETTE === */
+  --bg-1: #511079;
+  --bg-2: #25013b;
+  --purple-dark: #3b0066;
+  --purple-main: #59008f;
+  --purple-btn: #a137e1;
+  --purple-light: #944dc6;
+  --accent-yellow: #ffde59;
+  --accent-orange: #ff914d;
+  --accent-green: #00bf63;
+  --accent-red: #ff2159;
+  --accent-cyan: #00c258;
+  --white: #ffffff;
+  --text-body: #7a25ad;
+  --text-muted: #c084fc;
+  --card-bg-1: #533f8b;
+  --card-bg-2: #9d86dd;
+  --panel-bg: transparent;
+  --radius: 16px;
+  --radius-sm: 10px;
+  /* planets */
+  --planet-yellow: #bf9b00;
+  --planet-red: #fb0053;
+  --planet-green: #00c258;
+  --planet-blue: #3759d0;
+  --planet-purple: #944dc6;
+  /* buttons */
+  --btn-start: #7a25ad;
+  --btn-help: #944dc6;
+  --btn-about: #b170df;
+  --btn-exit: #e0acff;
+  --btn-export: #00c258;
+  --btn-menu: #e0acff;
+  --btn-exit-game: #ff2159;
+  --btn-border: #000000;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+*, *::before, *::after { font-family: 'Fredoka One',cursive !important; }
+body {
+  font-family:'Nunito',sans-serif;
+  background: linear-gradient(160deg, #511079 0%, #25013b 100%);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+/* Space top/bottom overlays */
+body::before {
+  content:'';
+  position:fixed; top:0; left:0; width:100%; height:320px;
+  background: url('imgs/top.png') top center / cover no-repeat;
+  pointer-events:none; z-index:0; opacity:0.85;
+}
+body::after {
+  content:'';
+  position:fixed; bottom:0; left:0; width:100%; height:320px;
+  background: url('imgs/bottom.png') bottom center / cover no-repeat;
+  pointer-events:none; z-index:0; opacity:0.85;
+}
+
+/* STARFIELD */
+#starfield {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  pointer-events:none; z-index:0; overflow:hidden;
+}
+.star {
+  position:absolute; background:#fff; border-radius:50%;
+  animation: twinkle linear infinite;
+}
+@keyframes twinkle {
+  0%,100%{opacity:0.2} 50%{opacity:1}
+}
+
+/* LAYOUT */
+#app {
+  position:relative; z-index:1;
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+}
+
+/* HEADER */
+.site-header {
+  width:100%; text-align:center; padding:18px 20px 0;
+  position:relative;
+}
+.logo-title {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(28px,5vw,46px);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:#fff;
+  text-shadow: 0 0 20px #944dc6, 2px 2px 0 #000;
+}
+.logo-title span { color: #ffde59; }
+.logo-sub {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(11px,2vw,16px);
+  color:var(--text-muted);
+  letter-spacing:4px;
+  text-transform:uppercase;
+  margin-top:2px;
+}
+.planet-deco {
+  position:absolute; pointer-events:none;
+  animation: float 6s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)}
+}
+
+/* SCREEN WRAPPER */
+.screen {
+  display:none;
+  width:100%; max-width:900px;
+  padding:20px 16px 40px;
+  flex-direction:column; align-items:center;
+  animation: fadeIn 0.3s ease;
+}
+.screen.active { display:flex; }
+@keyframes fadeIn {
+  from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)}
+}
+
+/* BUTTONS */
+.btn {
+  font-family:'Fredoka One',cursive;
+  font-size:20px;
+  letter-spacing:1px;
+  border:none; cursor:pointer;
+  border-radius:50px;
+  padding:12px 40px;
+  text-transform:uppercase;
+  transition:all 0.18s;
+  position:relative;
+  outline:none;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn-primary {
+  background: linear-gradient(135deg,#a137e1,#59008f);
+  color:#fff;
+  box-shadow: 0 6px 0 #000, 0 8px 20px rgba(161,55,225,0.4);
+  border: 2px solid #000;
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 0 #2d1b6b,0 12px 24px rgba(107,61,240,0.5); }
+.btn-primary:active { transform:translateY(3px); box-shadow:0 3px 0 #2d1b6b; }
+.btn-yellow {
+  background: linear-gradient(135deg,#ffde59,#ff914d);
+  color:#3b0066;
+  box-shadow: 0 6px 0 #000, 0 8px 20px rgba(255,222,89,0.4);
+  border: 2px solid #000;
+}
+.btn-yellow:hover { transform:translateY(-2px); box-shadow:0 8px 0 #a05510,0 12px 24px rgba(245,200,66,0.5); }
+.btn-yellow:active { transform:translateY(3px); box-shadow:0 3px 0 #a05510; }
+.btn-green {
+  background: linear-gradient(135deg,#00c258,#009040);
+  color:#fff;
+  box-shadow: 0 6px 0 #000, 0 8px 20px rgba(0,194,88,0.4);
+  border: 2px solid #000;
+}
+.btn-green:hover { transform:translateY(-2px); }
+.btn-red {
+  background: linear-gradient(135deg,#ff2159,#c0003a);
+  color:#fff;
+  box-shadow: 0 6px 0 #000, 0 8px 20px rgba(255,33,89,0.4);
+  border: 2px solid #000;
+}
+.btn-red:hover { transform:translateY(-2px); }
+.btn-back {
+  background:transparent;
+  color:var(--text-muted);
+  border:2px solid var(--purple-light);
+  box-shadow:none;
+  font-size:16px;
+  padding:10px 28px;
+}
+.btn-back:hover { background:var(--purple-dark); color:#fff; }
+.btn:disabled { opacity:0.45; cursor:not-allowed; transform:none; }
+
+/* PANEL */
+.panel {
+  background: linear-gradient(135deg,#533f8b,#3b0066);
+  border:2px solid var(--planet-purple);
+  border-radius:var(--radius);
+  padding:28px;
+  width:100%;
+  box-shadow:0 8px 40px rgba(0,0,0,0.4);
+  backdrop-filter:blur(6px);
+}
+
+/* MAIN MENU */
+#screen-menu .menu-btns {
+  display:flex; flex-direction:column; align-items:center; gap:14px;
+  width:100%; max-width:380px; margin-top:8px;
+}
+#screen-menu .menu-btns .btn {
+  width:100%; justify-content:center; font-size:22px; padding:14px;
+}
+.astronaut-deco {
+  width:160px; margin:10px auto;
+  animation: float 5s ease-in-out infinite;
+}
+
+/* HELP/ABOUT PANEL */
+.info-panel {
+  max-width:660px;
+}
+.info-panel h2 {
+  font-family:'Fredoka One',cursive;
+  color:var(--accent-yellow);
+  font-size:28px;
+  margin-bottom:16px;
+  text-align:center;
+}
+.info-panel h3 {
+  color:var(--accent-cyan);
+  font-size:17px;
+  margin:12px 0 6px;
+  font-weight:800;
+}
+.info-panel ul {
+  list-style:none; padding-left:0;
+}
+.info-panel ul li::before {
+  content:'🚀 ';
+}
+.info-panel ul li {
+  color:var(--text-muted); font-size:15px; margin-bottom:6px; line-height:1.5;
+}
+
+/* ROLE SELECT */
+.role-cards {
+  display:flex; gap:24px; flex-wrap:wrap; justify-content:center;
+  margin:24px 0;
+}
+.role-card {
+  background:transparent;
+  border:3px solid var(--purple-light);
+  border-radius:var(--radius);
+  padding:32px 40px;
+  cursor:pointer;
+  text-align:center;
+  transition:all 0.2s;
+  min-width:180px;
+}
+.role-card:hover {
+  border-color:var(--accent-yellow);
+  transform:translateY(-4px);
+  box-shadow:0 12px 30px rgba(245,200,66,0.3);
+}
+.role-card .role-icon { font-size:52px; margin-bottom:10px; }
+.role-card .role-label {
+  font-family:'Fredoka One',cursive;
+  font-size:22px; color:#fff; text-transform:uppercase;
+}
+
+/* JOIN GAME */
+.join-form {
+  max-width:480px;
+  width:100%;
+}
+.field-label {
+  font-family:'Fredoka One',cursive;
+  font-size:15px; color:var(--text-muted);
+  text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;
+}
+.field-input {
+  width:100%;
+  background:rgba(75,45,180,0.4);
+  border:2px solid var(--purple-light);
+  border-radius:var(--radius-sm);
+  color:#fff;
+  font-family:'Fredoka One',cursive;
+  font-size:18px; font-weight:700;
+  padding:12px 16px;
+  outline:none;
+  transition:border-color 0.2s;
+  margin-bottom:16px;
+}
+.field-input:focus { border-color:var(--accent-yellow); }
+.field-input::placeholder { color:rgba(255,255,255,0.3); }
+
+/* SESSION SETUP */
+.setup-form {
+  max-width:560px; width:100%;
+}
+.setup-row {
+  margin-bottom:14px;
+}
+select.field-input {
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23b8a8e0'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+  cursor:pointer;
+}
+.session-id-badge {
+  background:linear-gradient(135deg,#f5c842,#f07a28);
+  color:#1a0f3a;
+  font-family:'Fredoka One',cursive;
+  font-size:32px;
+  letter-spacing:8px;
+  text-align:center;
+  padding:12px 24px;
+  border-radius:var(--radius-sm);
+  margin:12px 0;
+  box-shadow:0 4px 0 #a05510;
+}
+.setup-actions {
+  display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;
+}
+
+/* WAITING ROOM */
+.waiting-welcome {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(22px,4vw,36px);
+  color:#fff; text-align:center;
+  text-shadow:0 0 20px var(--accent-yellow);
+}
+.session-pill {
+  background:linear-gradient(135deg,var(--accent-yellow),var(--accent-orange));
+  color:#1a0f3a;
+  font-family:'Fredoka One',cursive;
+  font-size:26px; letter-spacing:6px;
+  padding:8px 24px; border-radius:50px;
+  display:inline-block; margin:10px auto;
+  box-shadow:0 4px 0 #a05510;
+}
+.conn-status {
+  display:flex; align-items:center; gap:8px;
+  font-size:14px; color:var(--text-muted); margin:8px 0;
+  justify-content:center;
+}
+.conn-dot {
+  width:10px; height:10px; border-radius:50%;
+  background:var(--accent-yellow);
+  animation: spin-dot 0.8s linear infinite;
+}
+.conn-dot.connected { background:var(--accent-green); animation:none; }
+@keyframes spin-dot {
+  0%{opacity:0.3} 50%{opacity:1} 100%{opacity:0.3}
+}
+.player-list {
+  width:100%; max-width:440px; margin:0 auto;
+}
+.player-list-item {
+  display:flex; align-items:center; gap:10px;
+  background:rgba(107,77,232,0.25);
+  border-radius:var(--radius-sm); padding:10px 14px;
+  margin-bottom:8px;
+  animation:slideIn 0.3s ease;
+  border:1px solid rgba(107,77,232,0.5);
+}
+@keyframes slideIn {
+  from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)}
+}
+.player-avatar { font-size:26px; }
+.player-name { font-weight:800; color:#fff; font-size:16px; }
+.player-count-badge {
+  background:var(--purple-main);
+  color:var(--accent-yellow);
+  font-family:'Fredoka One',cursive;
+  font-size:14px;
+  padding:4px 12px; border-radius:50px;
+  border:2px solid var(--accent-yellow);
+}
+
+/* CATEGORY SELECT */
+.category-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:16px; width:100%; max-width:700px; margin-top:8px;
+}
+.category-card {
+  border-radius:var(--radius);
+  overflow:hidden;
+  cursor:pointer;
+  border:3px solid transparent;
+  transition:all 0.2s;
+  position:relative;
+}
+.category-card:hover {
+  border-color:var(--accent-yellow);
+  transform:translateY(-4px);
+  box-shadow:0 12px 30px rgba(245,200,66,0.3);
+}
+.category-card img {
+  width:100%; display:block;
+}
+.category-select-btn {
+  position:absolute; bottom:10px; right:10px;
+}
+
+/* GAME BOARD */
+#screen-game {
+  max-width:800px;
+}
+.game-header {
+  display:flex; align-items:center; justify-content:space-between;
+  width:100%; margin-bottom:12px; flex-wrap:wrap; gap:8px;
+}
+.game-meta {
+  display:flex; gap:10px; flex-wrap:wrap;
+}
+.meta-tag {
+  font-family:'Fredoka One',cursive;
+  font-size:13px; letter-spacing:1px;
+  padding:5px 14px; border-radius:50px;
+  text-transform:uppercase;
+}
+.meta-cat { background:var(--purple-main); color:#fff; }
+.meta-diff-easy { background:#3dd68c; color:#0d2a1a; }
+.meta-diff-medium { background:var(--accent-yellow); color:#1a0f3a; }
+.meta-diff-hard { background:var(--accent-red); color:#fff; }
+.meta-level { background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.3); }
+.game-stats {
+  display:flex; gap:16px; flex-wrap:wrap;
+}
+.stat-box {
+  background:transparent;
+  border:1px solid var(--purple-light);
+  border-radius:var(--radius-sm);
+  padding:6px 14px; text-align:center; min-width:70px;
+}
+.stat-val {
+  font-family:'Fredoka One',cursive;
+  font-size:22px; color:var(--accent-yellow);
+}
+.stat-lbl { font-size:11px; color:var(--text-muted); text-transform:uppercase; }
+
+/* CARD GRID */
+.card-grid {
+  display:grid; gap:10px; width:100%;
+  justify-items:center;
+}
+.mem-card {
+  width:100%; max-width:140px;
+  aspect-ratio:1.2;
+  perspective:800px;
+  cursor:pointer;
+}
+.mem-card-inner {
+  width:100%; height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform 0.4s ease;
+  border-radius:14px;
+}
+.mem-card.flipped .mem-card-inner { transform:rotateY(180deg); }
+.mem-card.matched .mem-card-inner { transform:rotateY(180deg); }
+.mem-card.matched .card-front { border-color:var(--accent-green); box-shadow:0 0 20px var(--accent-green); }
+.card-front,.card-back {
+  position:absolute; width:100%; height:100%;
+  backface-visibility:hidden;
+  border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  border:3px solid var(--card-border);
+  overflow:hidden;
+}
+.card-back {
+  background: var(--card-bg);
+  background-image: radial-gradient(circle at 30% 30%, rgba(107,77,232,0.5) 0%, transparent 60%);
+}
+.card-back-img {
+  width:90%; object-fit:contain;
+}
+.card-front {
+  background: linear-gradient(135deg,#4a2db4,#2d1b6b);
+  transform:rotateY(180deg);
+  flex-direction:column; gap:4px;
+  padding:10px; text-align:center;
+}
+.card-front-text {
+  color:#fff; font-size:clamp(11px,2vw,16px); font-weight:800;
+  line-height:1.2;
+}
+.card-front-emoji { font-size:clamp(20px,3vw,30px); }
+
+/* EXPOSURE OVERLAY */
+.exposure-bar {
+  width:100%; background:rgba(0,0,0,0.3);
+  border-radius:50px; height:8px; margin:8px 0;
+}
+.exposure-fill {
+  height:100%; background:linear-gradient(90deg,var(--accent-yellow),var(--accent-orange));
+  border-radius:50px; width:100%;
+  transition:width linear;
+}
+
+/* LEVEL COMPLETE */
+#screen-levelcomplete, #screen-gameover {
+  max-width:520px;
+}
+.complete-title {
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(32px,6vw,52px);
+  color:var(--accent-yellow);
+  text-align:center;
+  text-shadow:0 0 30px var(--accent-yellow);
+  animation:pulse-glow 1s ease-in-out infinite alternate;
+}
+@keyframes pulse-glow {
+  from{text-shadow:0 0 20px var(--accent-yellow)}
+  to{text-shadow:0 0 50px var(--accent-yellow), 0 0 80px var(--accent-orange)}
+}
+.stats-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:12px; width:100%; margin:20px 0;
+}
+.stats-card {
+  background:rgba(75,45,180,0.3);
+  border:2px solid var(--purple-light);
+  border-radius:var(--radius-sm);
+  padding:16px; text-align:center;
+}
+.stats-card .val {
+  font-family:'Fredoka One',cursive;
+  font-size:28px; color:var(--accent-yellow);
+}
+.stats-card .lbl { font-size:12px; color:var(--text-muted); text-transform:uppercase; }
+
+/* DASHBOARD */
+#screen-dashboard { max-width:1000px; }
+.dashboard-header {
+  display:flex; align-items:center; justify-content:space-between;
+  width:100%; flex-wrap:wrap; gap:8px; margin-bottom:16px;
+}
+.dashboard-title {
+  font-family:'Fredoka One',cursive;
+  font-size:24px; color:#fff;
+}
+.session-info-bar {
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+}
+.info-badge {
+  font-family:'Fredoka One',cursive;
+  font-size:13px; padding:5px 12px; border-radius:50px;
+  text-transform:uppercase; letter-spacing:1px;
+}
+.badge-session { background:var(--accent-yellow); color:#1a0f3a; }
+.badge-cat { background:var(--accent-cyan); color:#0d2a1a; }
+.badge-diff { background:var(--accent-orange); color:#fff; }
+.badge-level { background:var(--purple-main); color:#fff; }
+
+.stats-row {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+  width:100%; margin-bottom:16px;
+}
+.stat-card-big {
+  background:transparent;
+  border:2px solid var(--purple-light);
+  border-radius:var(--radius-sm);
+  padding:14px; text-align:center;
+}
+.stat-card-big .val {
+  font-family:'Fredoka One',cursive;
+  font-size:28px;
+}
+.val-green { color:var(--accent-green); }
+.val-yellow { color:var(--accent-yellow); }
+.val-red { color:var(--accent-red); }
+.val-cyan { color:var(--accent-cyan); }
+.stat-card-big .lbl { font-size:11px; color:var(--text-muted); text-transform:uppercase; }
+
+/* TABLE */
+.ranking-panel { width:100%; }
+.ranking-title {
+  font-family:'Fredoka One',cursive;
+  font-size:18px; color:var(--accent-yellow);
+  margin-bottom:10px; display:flex; align-items:center; gap:8px;
+}
+.rank-table {
+  width:100%; border-collapse:collapse; font-size:14px;
+}
+.rank-table th {
+  font-family:'Fredoka One',cursive;
+  font-size:13px; letter-spacing:1px;
+  color:var(--text-muted); text-transform:uppercase;
+  padding:8px 12px; text-align:left;
+  border-bottom:1px solid rgba(107,77,232,0.4);
+}
+.rank-table td {
+  padding:10px 12px;
+  border-bottom:1px solid rgba(107,77,232,0.2);
+  color:#fff; font-weight:700;
+}
+.rank-table tr:hover td { background:rgba(107,77,232,0.15); }
+.rank-num { color:var(--accent-yellow); font-family:'Fredoka One',cursive; font-size:18px; }
+.rank-name { font-size:15px; }
+.status-done { background:#1aaf6a; color:#fff; padding:3px 10px; border-radius:50px; font-size:12px; font-weight:800; }
+.status-playing { background:var(--accent-yellow); color:#1a0f3a; padding:3px 10px; border-radius:50px; font-size:12px; font-weight:800; }
+.status-exited { background:var(--accent-red); color:#fff; padding:3px 10px; border-radius:50px; font-size:12px; font-weight:800; }
+.status-waiting { background:var(--purple-main); color:#fff; padding:3px 10px; border-radius:50px; font-size:12px; font-weight:800; }
+.flag-red { color:var(--accent-red); font-size:18px; animation:blink 0.6s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.dash-actions {
+  display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;
+}
+
+/* START GAME ZONE */
+.start-zone {
+  border:2px dashed var(--accent-green);
+  border-radius:var(--radius);
+  padding:16px 20px;
+  text-align:center; margin-bottom:16px;
+  background:rgba(61,214,140,0.07);
+  transition:all 0.3s;
+}
+.start-zone.ready {
+  border-style:solid;
+  background:rgba(61,214,140,0.12);
+  animation:pulse-border 1.5s ease-in-out infinite;
+}
+@keyframes pulse-border {
+  0%,100%{box-shadow:0 0 0 0 rgba(61,214,140,0.3)}
+  50%{box-shadow:0 0 0 8px rgba(61,214,140,0)}
+}
+.start-zone p { color:var(--text-muted); font-size:14px; margin-bottom:10px; }
+
+/* TOAST */
+#toast {
+  position:fixed; bottom:30px; left:50%;
+  transform:translateX(-50%);
+  background:transparent;
+  border:2px solid var(--accent-yellow);
+  color:#fff; padding:12px 24px; border-radius:50px;
+  font-weight:800; font-size:15px;
+  z-index:999; display:none;
+  box-shadow:0 8px 30px rgba(0,0,0,0.5);
+}
+
+/* MODAL */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.75);
+  z-index:100; display:none; align-items:center; justify-content:center;
+}
+.modal-overlay.show { display:flex; }
+.modal-box {
+  background:linear-gradient(135deg,#1a0f3a,#2d1b6b);
+  border:3px solid var(--purple-light);
+  border-radius:var(--radius);
+  padding:32px 28px; max-width:440px; width:90%;
+  text-align:center; position:relative;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  animation:modalPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes modalPop {
+  from{transform:scale(0.7);opacity:0} to{transform:scale(1);opacity:1}
+}
+.modal-title {
+  font-family:'Fredoka One',cursive;
+  font-size:30px; color:var(--accent-yellow); margin-bottom:12px;
+}
+.modal-body { color:var(--text-muted); font-size:15px; margin-bottom:20px; line-height:1.6; }
+.modal-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+/* RANKINGS TABLE (final) */
+.final-rank-table {
+  width:100%; border-collapse:collapse; font-size:14px; margin-top:16px;
+}
+.final-rank-table th {
+  font-family:'Fredoka One',cursive; font-size:13px;
+  color:var(--text-muted); text-transform:uppercase;
+  padding:8px 10px; border-bottom:2px solid rgba(107,77,232,0.5);
+  text-align:center;
+}
+.final-rank-table td {
+  padding:10px; text-align:center;
+  color:#fff; font-weight:700;
+  border-bottom:1px solid rgba(107,77,232,0.2);
+}
+.gold { color:#FFD700; font-size:20px; }
+.silver { color:#C0C0C0; font-size:18px; }
+.bronze { color:#CD7F32; font-size:18px; }
+
+/* CONFETTI */
+.confetti-piece {
+  position:fixed; width:10px; height:10px; border-radius:2px;
+  animation:confetti-fall linear forwards;
+  pointer-events:none; z-index:200;
+}
+@keyframes confetti-fall {
+  0%{transform:translateY(-20px) rotate(0deg); opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg); opacity:0}
+}
+
+/* ===== SETTINGS MODAL ===== */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(107,77,232,0.25);
+}
+.settings-row:last-of-type { border-bottom: none; }
+.settings-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+.settings-icon { font-size: 28px; line-height: 1; flex-shrink: 0; }
+.settings-name {
+  font-family: 'Fredoka One', cursive;
+  font-size: 18px;
+  color: #fff;
+  line-height: 1.2;
+}
+.settings-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* Toggle switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 54px;
+  height: 28px;
+  flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(107,77,232,0.35);
+  border: 2px solid rgba(107,77,232,0.6);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  left: 2px; top: 2px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.toggle-switch input:checked + .toggle-slider {
+  background: linear-gradient(135deg, #944dc6, #59008f);
+  border-color: #944dc6;
+}
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(26px); }
+
+/* Range slider */
+.settings-range {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 50px;
+  background: rgba(107,77,232,0.35);
+  outline: none;
+  cursor: pointer;
+}
+.settings-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffde59, #ff914d);
+  border: 2px solid #000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.settings-range::-webkit-slider-thumb:hover { transform: scale(1.2); }
+.settings-range::-moz-range-thumb {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffde59, #ff914d);
+  border: 2px solid #000;
+  cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .category-grid { grid-template-columns:1fr; }
+  .stats-row { grid-template-columns:1fr 1fr; }
+  .role-cards { flex-direction:column; align-items:center; }
+  .mem-card { max-width:120px; }
+}
+
+/* ===== LANDING PAGE REDESIGN ===== */
+#screen-menu {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  max-width: 100vw;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* big decorative planets */
+.lp-planet {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+}
+.lp-yellow  { width: 220px; top: 8%;  left: -30px;  animation: float 6s ease-in-out infinite; }
+.lp-red     { width: 240px; bottom: 10%; left: -40px; animation: float 7s ease-in-out infinite; animation-delay:-2s; }
+.lp-green   { width: 200px; top: 2%;  right: 40px;  animation: float 5s ease-in-out infinite; animation-delay:-1s; }
+.lp-blue    { width: 130px; top: 30%; right: 10px;  animation: float 6.5s ease-in-out infinite; animation-delay:-3s; }
+/* giant violet planet bottom-right */
+.lp-violet-big {
+  width: 520px;
+  bottom: -130px;
+  right: -80px;
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+  animation: float 8s ease-in-out infinite;
+  animation-delay: -4s;
+}
+
+/* astronaut on top of violet planet */
+.lp-astronaut {
+  width: 230px;
+  position: fixed;
+  bottom: 170px;
+  right: 60px;
+  z-index: 2;
+  animation: float 5s ease-in-out infinite;
+  animation-delay: -0.5s;
+  pointer-events: none;
+}
+
+/* white card panel */
+.lp-card {
+  position: relative;
+  z-index: 3;
+  background: transparent;
+  border: none;
+  border-radius: 24px;
+  padding: 36px 48px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  min-width: 300px;
+  max-width: 360px;
+}
+
+/* title above card */
+.lp-title-wrap {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.lp-title-wrap .logo-title {
+  font-family: 'Fredoka One',cursive;
+  font-size: clamp(28px,4vw,44px);
+  letter-spacing: 3px;
+}
+.lp-title-wrap .logo-sub {
+  font-family: 'Fredoka One',cursive;
+  font-size: clamp(12px,1.8vw,17px);
+  letter-spacing: 5px;
+  margin-top: 2px;
+}
+
+/* landing menu buttons */
+.lp-btn {
+  width: 100%;
+  font-family: 'Fredoka One',cursive;
+  font-size: 20px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 14px 0;
+  margin-bottom: 14px;
+  text-align: center;
+  transition: all 0.15s;
+  outline: none;
+}
+.lp-btn:last-child { margin-bottom: 0; }
+.lp-btn-play   { background: #7a25ad; color: #fff; box-shadow: 0 5px 0 #000, 0 0 18px rgba(122,37,173,.5); border:2px solid #000; }
+.lp-btn-help   { background: #944dc6; color: #fff; box-shadow: 0 5px 0 #000, 0 0 18px rgba(148,77,198,.5); border:2px solid #000; }
+.lp-btn-about  { background: #b170df; color: #fff; box-shadow: 0 5px 0 #000, 0 0 18px rgba(177,112,223,.5); border:2px solid #000; }
+.lp-btn-settings { background: #3759d0; color: #fff; box-shadow: 0 5px 0 #000, 0 0 18px rgba(55,89,208,.5); border:2px solid #000; }
+.lp-btn-exit   { background: #e0acff; color: #3b0066; box-shadow: 0 5px 0 #000, 0 0 18px rgba(224,172,255,.4); border:2px solid #000; }
+.lp-btn:hover  { transform: translateY(-3px); filter: brightness(1.1); }
+.lp-btn:active { transform: translateY(2px); box-shadow: none; }
+
+/* center layout column */
+.lp-center {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+@media (max-width: 600px) {
+  .lp-yellow  { width: 130px; }
+  .lp-red     { width: 140px; }
+  .lp-green   { width: 120px; }
+  .lp-blue    { width: 80px; }
+  .lp-violet-big { width: 320px; bottom: -80px; right: -50px; }
+  .lp-astronaut  { width: 150px; bottom: 110px; right: 20px; }
+  .lp-card { padding: 28px 28px 32px; }
+}
+
+
+/* Hide top header on main menu – title is inside lp-center instead */
+#screen-menu.active ~ * .site-header,
+body:has(#screen-menu.active) .site-header {
+  display: none !important;
+}
+/* Simpler approach via JS class on body */
+body.on-menu .site-header { display: none !important; }
+body.on-menu #app { padding-top: 0; }
+
+
+/* ===== VISUAL CATEGORY SELECT SCREEN ===== */
+#screen-catselect {
+  max-width: 900px;
+}
+.catsel-title {
+  font-family:'Fredoka One',cursive;
+  font-size: clamp(24px,4vw,40px);
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 0 24px var(--purple-light);
+  margin-bottom: 24px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.catsel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  width: 100%;
+}
+/* Each card is a positioned container – image fills it, overlay on top */
+.catsel-card {
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 3px solid rgba(107,77,232,0.5);
+  transition: all 0.2s;
+  position: relative;
+  background: #1a0f3a;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+  aspect-ratio: 16/9;
+}
+.catsel-card:hover {
+  border-color: #ffde59;
+  transform: translateY(-5px);
+  box-shadow: 0 18px 44px rgba(245,200,66,0.35);
+}
+/* Banner image fills the whole card */
+.catsel-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* Dark gradient bar at the bottom for readability */
+.catsel-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 52px;
+  background: linear-gradient(transparent, rgba(10,4,30,0.82));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px 6px;
+  pointer-events: none;
+}
+/* Category name label */
+.catsel-label {
+  font-family:'Fredoka One',cursive;
+  font-size: clamp(18px,2.5vw,26px);
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+  letter-spacing: 1px;
+  line-height: 1;
+}
+/* SELECT button – needs pointer events restored */
+.catsel-select-btn {
+  pointer-events: all;
+  font-family:'Fredoka One',cursive;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg,#ffde59,#ff914d);
+  color: #3b0066;
+  border: none;
+  border-radius: 50px;
+  padding: 7px 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #a05510;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.catsel-select-btn:hover { transform:translateY(-2px); filter:brightness(1.08); }
+.catsel-select-btn:active { transform:translateY(2px); box-shadow:none; }
+@media(max-width:600px){
+  .catsel-grid { grid-template-columns:1fr; }
+  .catsel-card { aspect-ratio: 16/8; }
+}
+
+
+/* ═══ RESULT OVERLAYS (Level Complete + Game Over) ═══ */
+.result-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(5,0,20,0.80);
+  z-index: 200;
+  align-items: center; justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(6px);
+}
+.result-overlay.show { display: flex; }
+
+.result-box {
+  background: linear-gradient(160deg, #2a1060 0%, #150833 100%);
+  border: 2px solid #7a3fcf;
+  border-radius: 28px;
+  padding: 36px 32px 28px;
+  max-width: 460px; width: 100%;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(122,63,207,0.4), 0 24px 64px rgba(0,0,0,0.6);
+  animation: modalPop 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+/* Subtle starfield shimmer behind box */
+.result-box::before {
+  content:'';
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(148,77,198,0.18) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.result-icon {
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: 4px;
+  animation: float 3s ease-in-out infinite;
+  position: relative; z-index:1;
+}
+
+.result-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(26px, 5vw, 38px);
+  color: #FFDE59;
+  line-height: 1.1;
+  text-shadow: 0 0 20px rgba(255,222,89,0.5);
+  position: relative; z-index:1;
+}
+
+.result-player {
+  font-family: 'Fredoka One', cursive;
+  font-size: 20px;
+  color: #e0acff;
+  position: relative; z-index:1;
+}
+
+.result-sub {
+  font-size: 14px;
+  color: #9d86dd;
+  margin-bottom: 4px;
+  position: relative; z-index:1;
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  margin: 12px 0 8px;
+  position: relative; z-index:1;
+}
+.result-stats-4 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.result-stat {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(148,77,198,0.4);
+  border-radius: 14px;
+  padding: 14px 10px;
+}
+.rs-val {
+  font-family: 'Fredoka One', cursive;
+  font-size: 28px;
+  color: #FF914D;
+  line-height: 1;
+}
+.rs-lbl {
+  font-size: 11px;
+  font-weight: 800;
+  color: #9d86dd;
+  letter-spacing: 0.8px;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+/* PRIMARY = Next / Play Again — yellow-orange gradient */
+.result-btn-primary {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #FFDE59, #FF914D);
+  color: #1a0f3a;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.15s;
+  box-shadow: 0 5px 0 #a05510;
+  position: relative; z-index:1;
+}
+.result-btn-primary:hover { transform: translateY(-2px); filter: brightness(1.08); }
+.result-btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #a05510; }
+
+/* SECONDARY = Main Menu — ghost purple */
+.result-btn-secondary {
+  width: 100%;
+  padding: 13px;
+  background: transparent;
+  color: #e0acff;
+  border: 2px solid #7a3fcf;
+  border-radius: 14px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 17px;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: all 0.15s;
+  position: relative; z-index:1;
+}
+.result-btn-secondary:hover { background: rgba(122,63,207,0.2); transform: translateY(-1px); }
+
+</style>
+</head>
+<body>
+<div id="starfield"></div>
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <img src="imgs/blue_Planet.png" class="planet-deco" style="top:0;left:5%;width:40px;animation-delay:-1s">
+    <img src="imgs/red_Planet.png" class="planet-deco" style="top:10px;right:8%;width:55px;animation-delay:-3s">
+    <div class="logo-title">Memory Match <span>Pro</span></div>
+    <div class="logo-sub">Academic Edition</div>
+    <img src="imgs/violet_Planet.png" class="planet-deco" style="top:30px;left:20%;width:32px;animation-delay:-2s;display:none" id="header-planet-extra">
+  </header>
+
+  <!-- ===================== SCREENS ===================== -->
+
+  <!-- MAIN MENU -->
+  <div class="screen active" id="screen-menu">
+
+    <!-- big decorative planets -->
+    <img src="imgs/yellow_Planet.png" class="lp-planet lp-yellow">
+    <img src="imgs/red_Planet.png"    class="lp-planet lp-red">
+    <img src="imgs/green_Planet.png"  class="lp-planet lp-green">
+    <img src="imgs/blue_Planet.png"   class="lp-planet lp-blue">
+    <img src="imgs/violet_Planet.png" class="lp-planet lp-violet-big">
+    <img src="imgs/Astronaut.png"  class="lp-astronaut">
+
+    <!-- centre column: title + card -->
+    <div class="lp-center">
+      <div class="lp-title-wrap">
+        <div class="logo-title">Memory Match <span>Pro</span></div>
+        <div class="logo-sub">Academic Edition</div>
+      </div>
+
+      <div class="lp-card">
+        <button class="lp-btn lp-btn-play"     id="btn-play">▶ Start</button>
+        <button class="lp-btn lp-btn-help"     id="btn-help">❓ Help</button>
+        <button class="lp-btn lp-btn-about"    id="btn-about">ℹ️ About</button>
+        <button class="lp-btn lp-btn-settings" id="btn-settings">⚙️ Settings</button>
+        <button class="lp-btn lp-btn-exit"     id="btn-exit">✖ Exit</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- HELP -->
+  <div class="screen" id="screen-help">
+    <div class="panel info-panel">
+      <h2>📖 How to Play</h2>
+      <h3>For Students</h3>
+      <ul>
+        <li>Enter your name and the Session ID given by your instructor</li>
+        <li>Cards will briefly show during the Pre-Game Exposure phase</li>
+        <li>Click two cards to flip them. If they match, they stay open!</li>
+        <li>Complete all pairs to advance to the next level</li>
+        <li>Match as many pairs as possible and have fun!</li>
+      </ul>
+      <h3>For Instructors</h3>
+      <ul>
+        <li>Choose your academic category, difficulty, and level count</li>
+        <li>Share the Session ID with your students</li>
+        <li>View the Live Dashboard to monitor accuracy in real-time</li>
+        <li>Export results as CSV when the session ends</li>
+      </ul>
+      <br>
+      <div style="text-align:center">
+        <button class="btn btn-back" id="help-back">← Return</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="screen" id="screen-about">
+    <div class="panel info-panel">
+      <h2>🌌 About</h2>
+      <p style="color:var(--text-muted);font-size:15px;line-height:1.7;text-align:center">
+        Memory Match Pro – Academic Edition is a web-based educational game designed for elementary students to reinforce academic concepts through structured card-matching mechanics.
+        <br><br>
+        The platform features adaptive difficulty, real-time instructor dashboards, automated intervention alerts, and data export for record-keeping.
+        <br><br>
+        Supported Categories: Animals, Shapes, Colors, Mathematics<br>
+        Version: 1.0 – Academic Prototype
+      </p>
+      <br>
+      <div style="text-align:center">
+        <button class="btn btn-back" id="about-back">← Return</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROLE SELECT -->
+  <div class="screen" id="screen-role">
+    <h2 style="font-family:'Fredoka One',cursive;font-size:clamp(24px,5vw,42px);color:#fff;text-align:center;margin-bottom:8px">Who Are You?</h2>
+    <div class="role-cards">
+      <div class="role-card" id="role-student">
+        <div class="role-icon">🧑‍🎓</div>
+        <div class="role-label">Student</div>
+      </div>
+      <div class="role-card" id="role-instructor">
+        <div class="role-icon">👩‍🏫</div>
+        <div class="role-label">Instructor</div>
+      </div>
+    </div>
+    <button class="btn btn-back" id="role-back">← Return</button>
+  </div>
+
+  <!-- JOIN GAME (student) -->
+  <div class="screen" id="screen-join">
+    <h2 style="font-family:'Fredoka One',cursive;font-size:32px;color:var(--accent-yellow);margin-bottom:20px">Join Game</h2>
+    <div class="panel join-form">
+      <div class="field-label">Enter your name or student player name</div>
+      <input class="field-input" id="student-name" type="text" placeholder="Your Name" maxlength="24">
+      <div class="field-label">Session ID</div>
+      <input class="field-input" id="join-session-id" type="text" placeholder="e.g. XFGR" maxlength="4" style="text-transform:uppercase;letter-spacing:6px;font-size:24px;text-align:center">
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <button class="btn btn-yellow" id="btn-join-play" style="flex:1;justify-content:center">▶ Play</button>
+        <button class="btn btn-back" id="join-back">← Back</button>
+      </div>
+      <div id="join-error" style="color:var(--accent-red);font-size:13px;margin-top:8px;display:none;text-align:center"></div>
+    </div>
+  </div>
+
+  <!-- WAITING ROOM (student) -->
+  <div class="screen" id="screen-waiting">
+    <div class="waiting-welcome" id="wait-welcome">Welcome!</div>
+    <div class="session-pill" id="wait-session"></div>
+    <div class="conn-status">
+      <div class="conn-dot" id="conn-dot"></div>
+      <span id="conn-text">Connecting to instructor...</span>
+    </div>
+    <p style="color:var(--text-muted);font-size:13px;text-align:center;margin:4px 0">Your instructor will start the game when everyone's ready.</p>
+    <div class="player-count-badge" id="player-count-badge" style="margin:10px auto;display:inline-block">👥 1 Player in Lobby</div>
+    <div class="player-list" id="player-list"></div>
+  </div>
+
+
+  <!-- VISUAL CATEGORY SELECT (instructor) -->
+
+  <!-- GAME MODE SELECT (instructor) -->
+  <div class="screen" id="screen-modeselect">
+    <h2 style="font-family:'Fredoka One',cursive;font-size:clamp(22px,4vw,36px);color:var(--accent-yellow);text-align:center;margin-bottom:8px;text-shadow:0 0 20px rgba(255,222,89,.5)">Select Game Mode</h2>
+    <p style="color:var(--text-muted);text-align:center;margin-bottom:28px;font-size:14px">Choose how your students will play</p>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-bottom:28px">
+
+      <div id="mode-memory" style="
+        background:linear-gradient(135deg,#533f8b,#3b0066);
+        border:3px solid var(--planet-purple);
+        border-radius:20px;padding:32px 40px;cursor:pointer;text-align:center;
+        transition:all .2s;min-width:200px;
+        box-shadow:0 0 24px rgba(148,77,198,.35);">
+        <div style="font-size:52px;margin-bottom:12px">🧠</div>
+        <div style="font-family:'Fredoka One',cursive;font-size:22px;color:#ffde59;margin-bottom:8px">Memory Match</div>
+        <div style="font-size:13px;color:#c084fc;line-height:1.5">Flip cards and find<br>matching pairs</div>
+      </div>
+
+      <div id="mode-sequence" style="
+        background:linear-gradient(135deg,#533f8b,#3b0066);
+        border:3px solid var(--planet-purple);
+        border-radius:20px;padding:32px 40px;cursor:pointer;text-align:center;
+        transition:all .2s;min-width:200px;
+        box-shadow:0 0 24px rgba(148,77,198,.35);">
+        <div style="font-size:52px;margin-bottom:12px">📋</div>
+        <div style="font-family:'Fredoka One',cursive;font-size:22px;color:#ffde59;margin-bottom:8px">Sequence</div>
+        <div style="font-size:13px;color:#c084fc;line-height:1.5">Arrange steps in<br>the correct order</div>
+      </div>
+
+    </div>
+    <button class="btn btn-back" id="modesel-back" style="border-color:#e0acff;color:#e0acff">← Back</button>
+  </div>
+
+<div class="screen" id="screen-catselect">
+    <div class="catsel-title">Select a Category</div>
+    <div class="catsel-grid">
+
+      <div class="catsel-card" data-cat="Math">
+        <img src="imgs/category_Math.png" alt="Mathematics">
+        <div class="catsel-overlay">
+          <span class="catsel-label">Math</span>
+          <button class="catsel-select-btn" data-cat="Math">Select</button>
+        </div>
+      </div>
+
+      <div class="catsel-card" data-cat="Colors">
+        <img src="imgs/category_Colors.png" alt="Colors">
+        <div class="catsel-overlay">
+          <span class="catsel-label">Colors</span>
+          <button class="catsel-select-btn" data-cat="Colors">Select</button>
+        </div>
+      </div>
+
+      <div class="catsel-card" data-cat="Shapes">
+        <img src="imgs/category_Shapes.png" alt="Shapes">
+        <div class="catsel-overlay">
+          <span class="catsel-label">Shapes</span>
+          <button class="catsel-select-btn" data-cat="Shapes">Select</button>
+        </div>
+      </div>
+
+      <div class="catsel-card" data-cat="Animals">
+        <img src="imgs/category_Animals.png" alt="Animals">
+        <div class="catsel-overlay">
+          <span class="catsel-label">Animals</span>
+          <button class="catsel-select-btn" data-cat="Animals">Select</button>
+        </div>
+      </div>
+
+    </div>
+    <div style="margin-top:20px;display:flex;gap:12px;justify-content:center">
+      <button class="btn btn-back" id="catsel-back" style="border-color:#e0acff;color:#e0acff">← Back</button>
+    </div>
+  </div>
+
+  <!-- SESSION SETUP (instructor) -->
+  <div class="screen" id="screen-setup">
+    <h2 style="font-family:'Fredoka One',cursive;font-size:28px;color:var(--accent-yellow);margin-bottom:16px">Session Setup</h2>
+    <div class="panel setup-form">
+      <!-- Category is chosen on the visual select screen -->
+      <input type="hidden" id="setup-category" value="Math">
+      <div class="setup-row" id="chosen-cat-display" style="margin-bottom:10px">
+        <div class="field-label">Category</div>
+        <div id="chosen-cat-name" style="font-family:'Fredoka One',cursive;font-size:22px;color:var(--accent-yellow);padding:8px 0">Mathematics</div>
+      </div>
+      <div class="setup-row">
+        <div class="field-label">Difficulty</div>
+        <select class="field-input" id="setup-difficulty">
+          <option value="Easy">Easy (4 pairs)</option>
+          <option value="Medium">Medium (6 pairs)</option>
+          <option value="Hard">Hard (8 pairs)</option>
+        </select>
+      </div>
+      <div class="setup-row">
+        <div class="field-label">Number of Levels</div>
+        <select class="field-input" id="setup-levels">
+          <option value="1">1 Level</option>
+          <option value="2">2 Levels</option>
+          <option value="3" selected>3 Levels</option>
+          <option value="4">4 Levels</option>
+          <option value="5">5 Levels</option>
+        </select>
+      </div>
+      <div class="setup-row">
+        <div class="field-label">Accuracy Baseline (% for red flag)</div>
+        <select class="field-input" id="setup-baseline">
+          <option value="50">50%</option>
+          <option value="60">60%</option>
+          <option value="70" selected>70%</option>
+          <option value="80">80%</option>
+          <option value="90">90%</option>
+        </select>
+      </div>
+      <div class="field-label">Session ID (Auto-Generated)</div>
+      <div class="session-id-badge" id="setup-session-id">----</div>
+      <button class="btn btn-primary" style="margin-top:4px;font-size:13px;padding:6px 14px" id="btn-regen-id">🔄 Regenerate</button>
+      <div class="setup-actions" style="margin-top:16px">
+        <button class="btn btn-green" id="btn-connect-dashboard" style="flex:1;justify-content:center">🔗 Connect & Start Dashboard</button>
+        <button class="btn btn-back" id="setup-back">← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE DASHBOARD (instructor) -->
+  <div class="screen" id="screen-dashboard">
+    <div class="dashboard-header">
+      <div class="dashboard-title">📡 Live Dashboard</div>
+      <div class="session-info-bar">
+        <span class="info-badge badge-session" id="dash-session-badge">----</span>
+        <span class="info-badge badge-cat" id="dash-cat-badge">Math</span>
+        <span class="info-badge badge-diff" id="dash-diff-badge">Easy</span>
+        <span class="info-badge badge-level" id="dash-level-badge">Level 1</span>
+      </div>
+    </div>
+
+    <!-- Start Game Zone -->
+    <div class="start-zone" id="start-zone">
+      <p id="start-zone-msg">Waiting for students to join...</p>
+      <button class="btn btn-green" id="btn-start-game" disabled style="font-size:18px;padding:12px 36px">🎮 Start Game</button>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card-big">
+        <div class="val val-green" id="dash-students-joined">0</div>
+        <div class="lbl">Students Joined</div>
+      </div>
+      <div class="stat-card-big">
+        <div class="val val-yellow" id="dash-playing">0</div>
+        <div class="lbl">Currently Playing</div>
+      </div>
+      <div class="stat-card-big">
+        <div class="val val-cyan" id="dash-avg-acc">0%</div>
+        <div class="lbl">Avg Accuracy</div>
+      </div>
+      <div class="stat-card-big">
+        <div class="val val-red" id="dash-flags">0</div>
+        <div class="lbl">Red Flags</div>
+      </div>
+    </div>
+
+    <!-- Ranking Table -->
+    <div class="panel ranking-panel">
+      <div class="ranking-title">👑 Student Ranking</div>
+      <div style="overflow-x:auto">
+        <table class="rank-table" id="rank-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Level</th>
+              <th>Moves</th>
+              <th>Time</th>
+              <th>Accuracy</th>
+              <th>Status</th>
+              <th>Flag</th>
+            </tr>
+          </thead>
+          <tbody id="rank-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="dash-actions" style="margin-top:16px">
+      <button class="btn btn-primary" id="btn-export-csv">📥 Export CSV</button>
+      <button class="btn btn-back" id="dash-main-menu">🏠 Main Menu</button>
+      <button class="btn btn-red" id="dash-exit">✖ Exit</button>
+    </div>
+  </div>
+
+  <!-- GAME BOARD -->
+  <div class="screen" id="screen-game">
+    <div class="game-header">
+      <div>
+        <div style="font-family:'Fredoka One',cursive;font-size:20px;color:#fff" id="game-student-name">Player</div>
+        <div class="game-meta" id="game-meta-tags"></div>
+        <div id="game-subtitle" style="font-family:'Fredoka One',cursive;font-size:13px;color:var(--text-muted);margin-top:2px;letter-spacing:1px"></div>
+      </div>
+      <div class="game-stats">
+        <div class="stat-box"><div class="stat-val" id="stat-time">0s</div><div class="stat-lbl">Time</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-moves">0</div><div class="stat-lbl">Moves</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-acc">0%</div><div class="stat-lbl">Accuracy</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-level">1/1</div><div class="stat-lbl">Level</div></div>
+      </div>
+    </div>
+
+    <!-- Exposure bar -->
+    <div id="exposure-container" style="width:100%;display:none;margin-bottom:8px">
+      <div style="font-family:'Fredoka One',cursive;font-size:14px;color:var(--accent-yellow);text-align:center;margin-bottom:4px" id="exposure-label">Memorize the cards!</div>
+      <div class="exposure-bar"><div class="exposure-fill" id="exposure-fill"></div></div>
+    </div>
+
+    <div class="card-grid" id="card-grid"></div>
+
+    <div style="display:flex;gap:12px;margin-top:16px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" id="btn-restart-game">🔄 Restart</button>
+      <button class="btn btn-back" id="game-main-menu">🏠 Main Menu</button>
+    </div>
+  </div>
+
+  <!-- LEVEL COMPLETE -->
+  <div class="screen" id="screen-levelcomplete">
+  <!-- This screen is intentionally empty; level complete is shown as an overlay modal -->
+</div>
+
+</div><!-- /app -->
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title">Title</div>
+    <div class="modal-body" id="modal-body">Body</div>
+    <div class="modal-btns" id="modal-btns"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ==================== GAME DATA ==================== -->
+<script>
+// ============== GAME CONTENT DATA ==============
+// Structure: GAME_DATA[category][difficulty] = array of GAMES (one per level).
+// Each GAME = { title, pairs: [ [[textA,emojiA],[textB,emojiB]], ... ] }
+// getPairs() picks game[(currentLevel-1) % games.length].pairs
+
+const GAME_DATA = {
+
+  // ─────────────── MATHEMATICS ───────────────
+  Math: {
+    Easy: [
+      {
+        title: 'Numbers and Counting',
+        pairs: [
+          [['1','☝️'],['One','']],
+          [['2','✌️'],['Two','']],
+          [['3','🤟'],['Three','']],
+          [['4','🍀'],['Four','']],
+        ]
+      },
+      {
+        title: 'Basic Operations',
+        pairs: [
+          [['2 + 2',''],['4','']],
+          [['3 - 1',''],['2','']],
+          [['2 × 4',''],['8','']],
+          [['6 ÷ 2',''],['3','']],
+        ]
+      },
+      {
+        title: 'Shapes and Geometry',
+        pairs: [
+          [['⚪',''],['Round shape, no corners','']],
+          [['⬛',''],['4 equal sides, 4 corners','']],
+          [['🔺',''],['3 sides, 3 corners','']],
+          [['▭',''],['Opposite sides equal','']],
+        ]
+      },
+      {
+        title: 'Number Patterns',
+        pairs: [
+          [['1, 2, 3, ___',''],['4','']],
+          [['2, 4, 6, ___',''],['8','']],
+          [['5, 10, 15, ___',''],['20','']],
+          [['10, 9, 8, ___',''],['7','']],
+        ]
+      },
+      {
+        title: 'Greater Than / Less Than',
+        pairs: [
+          [['3 > 2',''],['Three is greater than 2','']],
+          [['5 < 8',''],['Five is less than eight','']],
+          [['4 = 4',''],['Four equals four','']],
+          [['7 > 5',''],['Seven is greater than five','']],
+        ]
+      },
+    ],
+
+    Medium: [
+      {
+        title: 'Numbers and Counting',
+        pairs: [
+          [['✌️ 2',''],['Two','']],
+          [['🍀 4',''],['Four','']],
+          [['🎲 6',''],['Six','']],
+          [['🪐 8',''],['Eight','']],
+          [['🔟 10',''],['Ten','']],
+          [['🌟 12',''],['Twelve','']],
+        ]
+      },
+      {
+        title: 'Basic Operations',
+        pairs: [
+          [['3 + 2',''],['5','']],
+          [['5 - 2',''],['3','']],
+          [['2 × 3',''],['6','']],
+          [['6 ÷ 2',''],['3','']],
+          [['4 + 1',''],['5','']],
+          [['8 ÷ 4',''],['2','']],
+        ]
+      },
+      {
+        title: 'Shapes and Geometry',
+        pairs: [
+          [['⬟ Pentagon',''],['5 sides','']],
+          [['⬣ Hexagon',''],['6 sides','']],
+          [['🥚 Oval',''],['Egg-shaped, 0 corners','']],
+          [['🔶 Diamond',''],['Pointy top and bottom','']],
+          [['📏 Trapezoid',''],['Parallel sides','']],
+          [['🛑 Octagon',''],['8 sides','']],
+        ]
+      },
+      {
+        title: 'Number Patterns',
+        pairs: [
+          [['3, 6, 9, ___',''],['12','']],
+          [['20, 18, 16, ___',''],['14','']],
+          [['1, 4, 7, ___',''],['10','']],
+          [['100, 90, 80, ___',''],['70','']],
+          [['2, 5, 8, ___',''],['11','']],
+          [['1, 1, 2, 3, 5, ___',''],['8','']],
+        ]
+      },
+      {
+        title: 'Greater Than / Less Than',
+        pairs: [
+          [['7 > 4',''],['Seven is greater than four','']],
+          [['3 < 8',''],['Three is less than eight','']],
+          [['5 = 5',''],['Five equals five','']],
+          [['9 > 6',''],['Nine is greater than six','']],
+          [['2 < 7',''],['Two is less than seven','']],
+          [['10 = 10',''],['Ten equals ten','']],
+        ]
+      },
+    ],
+
+    Hard: [
+      {
+        title: 'Numbers and Counting',
+        pairs: [
+          [['🖐 5',''],['Five','']],
+          [['🔟 10',''],['Ten','']],
+          [['🎈 20',''],['Twenty','']],
+          [['🍭 30',''],['Thirty','']],
+          [['🌙 40',''],['Forty','']],
+          [['🎲 50',''],['Fifty','']],
+          [['🚀 60',''],['Sixty','']],
+          [['🌟 70',''],['Seventy','']],
+        ]
+      },
+      {
+        title: 'Basic Operations',
+        pairs: [
+          [['6 + 6',''],['12','']],
+          [['31 + 14',''],['45','']],
+          [['21 - 7',''],['14','']],
+          [['12 × 3',''],['36','']],
+          [['11 × 8',''],['88','']],
+          [['18 ÷ 3',''],['6','']],
+          [['24 ÷ 4',''],['6','']],
+          [['4 - 16',''],['12','']],
+        ]
+      },
+      {
+        title: 'Shapes and Geometry',
+        pairs: [
+          [['⚪ Circle',''],['Round shape','']],
+          [['⬛ Square',''],['4 equal sides','']],
+          [['🔺 Triangle',''],['3 sides','']],
+          [['▭ Rectangle',''],['Opposite sides equal','']],
+          [['🥚 Oval',''],['No corners','']],
+          [['🔶 Diamond',''],['Pointy edges','']],
+          [['⭐ Star',''],['5 points','']],
+          [['💖 Heart',''],['Valentine shape','']],
+        ]
+      },
+      {
+        title: 'Number Patterns',
+        pairs: [
+          [['4, 8, 12, ___',''],['16','']],
+          [['50, 45, 40, ___',''],['35','']],
+          [['3, 9, 27, ___',''],['81','']],
+          [['64, 32, 16, ___',''],['8','']],
+          [['1, 3, 6, 10, ___',''],['15','']],
+          [['2, 6, 18, ___',''],['54','']],
+          [['81, 27, 9, ___',''],['3','']],
+          [['1, 4, 9, 16, ___',''],['25','']],
+        ]
+      },
+      {
+        title: 'Greater Than / Less Than',
+        pairs: [
+          [['3 > 2',''],['Three is greater than 2','']],
+          [['5 < 8',''],['Five is less than eight','']],
+          [['4 = 4',''],['Four equals four','']],
+          [['7 > 5',''],['Seven is greater than five','']],
+          [['2 < 6',''],['Two is less than six','']],
+          [['9 = 9',''],['Nine equals nine','']],
+          [['10 > 1',''],['Ten is greater than 1','']],
+          [['3 < 5',''],['Three is less than 5','']],
+        ]
+      },
+    ],
+  },
+
+  // ─────────────── SHAPES ───────────────
+  Shapes: {
+    Easy: [
+      {
+        title: 'Basic 2D Shapes',
+        pairs: [
+          [['⚪',''],['Circle – Round shape','']],
+          [['⬛',''],['Square – Equal sides','']],
+          [['🔺',''],['Triangle – 3 sides','']],
+          [['📏',''],['Rectangle – Long shape','']],
+        ]
+      },
+      {
+        title: 'How Many Sides?',
+        pairs: [
+          [['🔺 Triangle',''],['3 sides','']],
+          [['⬛ Square',''],['4 sides, all equal','']],
+          [['📏 Rectangle',''],['4 sides, opposite equal','']],
+          [['⚪ Circle',''],['0 sides','']],
+        ]
+      },
+      {
+        title: '3D Shapes',
+        pairs: [
+          [['🎲',''],['Cube – Like a dice','']],
+          [['⚽',''],['Sphere – Like a ball','']],
+          [['🥤',''],['Cylinder – Like a can','']],
+          [['🍦',''],['Cone – Like ice cream','']],
+        ]
+      },
+      {
+        title: 'Shapes in Real Life',
+        pairs: [
+          [['🍕 Pizza Slice',''],['🔺 Triangle','']],
+          [['🕒 Clock',''],['⚪ Circle','']],
+          [['🪟 Window',''],['⬛ Square','']],
+          [['🚪 Door',''],['📏 Rectangle','']],
+        ]
+      },
+      {
+        title: 'Match the Shape Name',
+        pairs: [
+          [['⚪ Circle',''],['Round shape','']],
+          [['⬛ Square',''],['Four equal sides','']],
+          [['🔺 Triangle',''],['Three sides','']],
+          [['📏 Rectangle',''],['Long and short sides','']],
+        ]
+      },
+    ],
+
+    Medium: [
+      {
+        title: 'Basic 2D Shapes',
+        pairs: [
+          [['Oval',''],['🥚','']],
+          [['Diamond',''],['🔶','']],
+          [['Star',''],['⭐','']],
+          [['Heart',''],['❤️','']],
+          [['Pentagon',''],['⬟','']],
+          [['Hexagon',''],['⬣','']],
+        ]
+      },
+      {
+        title: 'How Many Sides?',
+        pairs: [
+          [['⬟ Pentagon',''],['5 sides','']],
+          [['⬣ Hexagon',''],['6 sides','']],
+          [['🥚 Oval',''],['0 sides','']],
+          [['🔶 Diamond',''],['4 sides','']],
+          [['🛑 Octagon',''],['8 sides','']],
+          [['⭐ Star',''],['10 sides','']],
+        ]
+      },
+      {
+        title: '3D Shapes',
+        pairs: [
+          [['🛕 Pyramid',''],['Like Egypt','']],
+          [['📦 Rectangular Prism',''],['Like a shoebox','']],
+          [['🎲 Cube',''],['Like a dice','']],
+          [['🏀 Sphere',''],['Like a ball','']],
+          [['🥫 Cylinder',''],['Like a can','']],
+          [['🍦 Cone',''],['Like ice cream','']],
+        ]
+      },
+      {
+        title: 'Shapes in Real Life',
+        pairs: [
+          [['🛑 Stop Sign',''],['Octagon','']],
+          [['🥚 Egg',''],['Oval','']],
+          [['🪁 Kite',''],['Diamond','']],
+          [['🌟 Starfish',''],['Star','']],
+          [['🎲 Dice',''],['Cube','']],
+          [['⚽ Ball',''],['Sphere','']],
+        ]
+      },
+      {
+        title: 'Match the Shape Name',
+        pairs: [
+          [['🥚 Oval',''],['Egg shape','']],
+          [['🔶 Diamond',''],['Pointy top and bottom','']],
+          [['⭐ Star',''],['Five points','']],
+          [['❤️ Heart',''],['Valentine shape','']],
+          [['⬟ Pentagon',''],['Five sides','']],
+          [['⬣ Hexagon',''],['Six sides','']],
+        ]
+      },
+    ],
+
+    Hard: [
+      {
+        title: 'Basic 2D Shapes',
+        pairs: [
+          [['🛑 Octagon',''],['8 sides','']],
+          [['Trapezoid',''],['4 sides, 2 are parallel','']],
+          [['Crescent',''],['🌙','']],
+          [['Cross',''],['✝️','']],
+          [['Arrow',''],['➡️','']],
+          [['Semicircle',''],['Half a circle','']],
+          [['Heptagon',''],['7 sides','']],
+          [['Nonagon',''],['9 sides','']],
+        ]
+      },
+      {
+        title: 'How Many Corners?',
+        pairs: [
+          [['Triangle',''],['3 corners','']],
+          [['Decagon',''],['10 corners','']],
+          [['Rectangle',''],['4 corners','']],
+          [['Pentagon',''],['5 corners','']],
+          [['Hexagon',''],['6 corners','']],
+          [['Octagon',''],['8 corners','']],
+          [['Circle',''],['0 corners','']],
+          [['Nonagon',''],['9 corners','']],
+        ]
+      },
+      {
+        title: '3D Shapes',
+        pairs: [
+          [['Cube','🎲'],['Like a dice','']],
+          [['Sphere','⚽'],['Like a ball','']],
+          [['Cylinder','🥫'],['Like a can','']],
+          [['Cone','🍦'],['Like ice cream','']],
+          [['Pyramid','🛕'],['Like Egypt','']],
+          [['Rectangular Prism','📦'],['Like a shoebox','']],
+          [['Triangular Prism','🍫'],['Like a Toblerone','']],
+          [['Hemisphere','🍨'],['Half a sphere','']],
+        ]
+      },
+      {
+        title: 'Shapes in Real Life',
+        pairs: [
+          [['Can of soda','🥫'],['Cylinder','']],
+          [['Ice cream cone','🍦'],['Cone','']],
+          [['House roof','🏠'],['Triangle','']],
+          [['Honeycomb cell',''],['Hexagon','']],
+          [['Pizza box','📦'],['Rectangular Prism','']],
+          [['Globe','🌍'],['Sphere','']],
+          [['Party hat','🥳'],['Cone','']],
+          [['Soccer ball','⚽'],['Sphere (with pentagons)','']],
+        ]
+      },
+      {
+        title: 'Match the Shape Name',
+        pairs: [
+          [['Octagon','🛑'],['Eight sides','']],
+          [['Trapezoid',''],['Looks like a table','']],
+          [['Parallelogram',''],['Slanted rectangle','']],
+          [['Rhombus','♦'],['Diamond shape','']],
+          [['Crescent','🌙'],['Moon shape','']],
+          [['Cross','➕'],['Plus sign shape','']],
+          [['Arrow','➡️'],['Points a direction','']],
+          [['Semicircle','🌓'],['Half of a circle','']],
+        ]
+      },
+    ],
+  },
+
+  // ─────────────── ANIMALS ───────────────
+  Animals: {
+    Easy: [
+      {
+        title: 'Farm Animals',
+        pairs: [
+          [['Cow','🐄'],['Says moo','']],
+          [['Pig','🐖'],['Says oink','']],
+          [['Chicken','🐔'],['Says cluck','']],
+          [['Sheep','🐑'],['Says baa','']],
+        ]
+      },
+      {
+        title: 'Zoo Animals',
+        pairs: [
+          [['Lion','🦁'],['King of the jungle','']],
+          [['Elephant','🐘'],['Has a long trunk','']],
+          [['Giraffe','🦒'],['Has a long neck','']],
+          [['Monkey','🐒'],['Loves bananas','']],
+        ]
+      },
+      {
+        title: 'Ocean Animals',
+        pairs: [
+          [['🐬 Dolphin',''],['Smart swimmer','']],
+          [['🦈 Shark',''],['Sharp teeth','']],
+          [['🐢 Turtle',''],['Slow swimmer','']],
+          [['🐙 Octopus',''],['Has 8 arms','']],
+        ]
+      },
+      {
+        title: 'Animal Homes',
+        pairs: [
+          [['🐻 Bear',''],['Lives in a cave','']],
+          [['🐦 Bird',''],['Lives in a nest','']],
+          [['🦊 Fox',''],['Lives in a den','']],
+          [['🐰 Rabbit',''],['Lives in a burrow','']],
+        ]
+      },
+      {
+        title: 'Baby Animals',
+        pairs: [
+          [['🐶 Puppy',''],['Baby dog','']],
+          [['🐱 Kitten',''],['Baby cat','']],
+          [['🐮 Calf',''],['Baby cow','']],
+          [['🐑 Lamb',''],['Baby sheep','']],
+        ]
+      },
+    ],
+
+    Medium: [
+      {
+        title: 'Farm Animals',
+        pairs: [
+          [['Horse','🐎'],['Says neigh','']],
+          [['Duck','🦆'],['Says quack','']],
+          [['Goat','🐐'],['Says maa','']],
+          [['Turkey','🦃'],['Says gobble','']],
+          [['Donkey','🌾'],['Says hee-haw','']],
+          [['Rooster','⏰'],['Says cock-a-doodle-doo','']],
+        ]
+      },
+      {
+        title: 'Zoo Animals',
+        pairs: [
+          [['Zebra','🦓'],['Has black and white stripes','']],
+          [['Tiger','🐅'],['Has orange and black stripes','']],
+          [['Kangaroo','🦘'],['Jumps and has a pouch','']],
+          [['Panda','🐼'],['Black and white, loves bamboo','']],
+          [['Polar Bear','🐻‍❄️'],['Lives where it\'s cold','']],
+          [['Penguin','🐧'],['Waddles, cannot fly','']],
+        ]
+      },
+      {
+        title: 'Ocean Animals',
+        pairs: [
+          [['🐳 Whale',''],['Biggest sea animal','']],
+          [['🦀 Crab',''],['Walks sideways','']],
+          [['🐠 Clownfish',''],['Orange and white fish','']],
+          [['🦑 Squid',''],['Shoots ink','']],
+          [['🐬 Dolphin',''],['Very smart','']],
+          [['⭐ Starfish',''],['Sea star','']],
+        ]
+      },
+      {
+        title: 'Wild Animals',
+        pairs: [
+          [['🦊 Fox',''],['Bushy tail','']],
+          [['🐺 Wolf',''],['Howls at the moon','']],
+          [['🦌 Deer',''],['Has antlers','']],
+          [['🐍 Snake',''],['Slithers','']],
+          [['🦉 Owl',''],['Active at night','']],
+          [['🦇 Bat',''],['Hangs upside down','']],
+        ]
+      },
+      {
+        title: 'Animal Babies',
+        pairs: [
+          [['🐣 Chick',''],['Baby chicken','']],
+          [['🐷 Piglet',''],['Baby pig','']],
+          [['🐴 Foal',''],['Baby horse','']],
+          [['🐐 Kid',''],['Baby goat','']],
+          [['🦆 Duckling',''],['Baby duck','']],
+          [['🐻 Cub',''],['Baby bear','']],
+        ]
+      },
+    ],
+
+    Hard: [
+      {
+        title: 'Farm Animals',
+        pairs: [
+          [['🐄 Cow gives us',''],['🥛 Milk','']],
+          [['🐔 Chicken gives us',''],['🥚 Eggs','']],
+          [['🐑 Sheep gives us',''],['🧶 Wool','']],
+          [['🐖 Pig lives in',''],['A sty','']],
+          [['🐎 Horse lives in',''],['A stable','']],
+          [['🦆 Duck lives in',''],['A pond','']],
+          [['🐮 Baby cow is called',''],['Calf','']],
+          [['🐑 Baby sheep is called',''],['Lamb','']],
+        ]
+      },
+      {
+        title: 'Zoo Animals',
+        pairs: [
+          [['🐆 Cheetah',''],['Fastest land animal','']],
+          [['🦛 Hippo',''],['Lives in water, big mouth','']],
+          [['🦏 Rhino',''],['Has a horn','']],
+          [['🦍 Gorilla',''],['Biggest primate','']],
+          [['🦥 Sloth',''],['Very slow animal','']],
+          [['🦩 Flamingo',''],['Pink bird','']],
+          [['🐨 Koala',''],['Eats eucalyptus','']],
+          [['🦚 Peacock',''],['Colorful tail','']],
+        ]
+      },
+      {
+        title: 'Ocean Animals',
+        pairs: [
+          [['🐋 Blue Whale',''],['Largest animal on Earth','']],
+          [['🦈 Great White Shark',''],['Dangerous predator','']],
+          [['🐙 Octopus',''],['8 tentacles','']],
+          [['🐢 Sea Turtle',''],['Carries a shell','']],
+          [['🦑 Squid',''],['Shoots black ink','']],
+          [['🐠 Angelfish',''],['Colorful fins','']],
+          [['🦀 Hermit Crab',''],['Lives in shells','']],
+          [['🐬 Dolphin',''],['Intelligent swimmer','']],
+        ]
+      },
+      {
+        title: 'Jungle Animals',
+        pairs: [
+          [['🐅 Tiger',''],['Jungle predator','']],
+          [['🦧 Orangutan',''],['Swings on trees','']],
+          [['🐍 Python',''],['Giant snake','']],
+          [['🦉 Owl',''],['Nocturnal bird','']],
+          [['🐺 Wolf',''],['Hunts in packs','']],
+          [['🦌 Deer',''],['Eats plants','']],
+          [['🦊 Fox',''],['Clever animal','']],
+          [['🐻 Bear',''],['Hibernates','']],
+        ]
+      },
+      {
+        title: 'Animal Facts',
+        pairs: [
+          [['🦒 Giraffe',''],['Tallest land animal','']],
+          [['🐘 Elephant',''],['Has strong memory','']],
+          [['🐧 Penguin',''],['Cannot fly','']],
+          [['🦘 Kangaroo',''],['Carries babies in pouch','']],
+          [['🐼 Panda',''],['Eats bamboo','']],
+          [['🦇 Bat',''],['Mammal that flies','']],
+          [['🐬 Dolphin',''],['Uses echolocation','']],
+          [['🦜 Parrot',''],['Can mimic sounds','']],
+        ]
+      },
+    ],
+  },
+
+  // ─────────────── COLORS ───────────────
+  // Note: Colors dataset (Case Study 5) had no card pairs defined in the PDF.
+  // These are standard color-matching pairs used as placeholder content.
+  Colors: {
+    Easy: [
+      {
+        title: 'Primary Colors',
+        pairs: [
+          [['🔴',''],['Red','']],
+          [['🔵',''],['Blue','']],
+          [['🟡',''],['Yellow','']],
+          [['🟢',''],['Green','']],
+        ]
+      },
+      {
+        title: 'More Colors',
+        pairs: [
+          [['🟠',''],['Orange','']],
+          [['🟣',''],['Purple','']],
+          [['⚫',''],['Black','']],
+          [['⚪',''],['White','']],
+        ]
+      },
+      {
+        title: 'Color Mixing',
+        pairs: [
+          [['Red + Yellow',''],['🟠 Orange','']],
+          [['Blue + Yellow',''],['🟢 Green','']],
+          [['Red + Blue',''],['🟣 Purple','']],
+          [['Black + White',''],['⚫⚪ Gray','']],
+        ]
+      },
+      {
+        title: 'Colors in Nature',
+        pairs: [
+          [['🌞 Sun',''],['🟡 Yellow','']],
+          [['🌊 Ocean',''],['🔵 Blue','']],
+          [['🌿 Leaf',''],['🟢 Green','']],
+          [['🌹 Rose',''],['🔴 Red','']],
+        ]
+      },
+      {
+        title: 'Rainbow Colors',
+        pairs: [
+          [['1st Rainbow Color',''],['Red','']],
+          [['2nd Rainbow Color',''],['Orange','']],
+          [['3rd Rainbow Color',''],['Yellow','']],
+          [['4th Rainbow Color',''],['Green','']],
+        ]
+      },
+    ],
+
+    Medium: [
+      {
+        title: 'Extended Colors',
+        pairs: [
+          [['🟠',''],['Orange','']],
+          [['🟣',''],['Purple','']],
+          [['🟤',''],['Brown','']],
+          [['⚫',''],['Black','']],
+          [['⚪',''],['White','']],
+          [['🩷',''],['Pink','']],
+        ]
+      },
+      {
+        title: 'Color Mixing',
+        pairs: [
+          [['Red + Yellow',''],['Orange','']],
+          [['Blue + Yellow',''],['Green','']],
+          [['Red + Blue',''],['Purple','']],
+          [['Red + White',''],['Pink','']],
+          [['White + Black',''],['Gray','']],
+          [['Red + Green',''],['Brown','']],
+        ]
+      },
+      {
+        title: 'Colors in Nature',
+        pairs: [
+          [['☁️ Cloud',''],['White','']],
+          [['🌊 Ocean',''],['Blue','']],
+          [['🌿 Leaf',''],['Green','']],
+          [['🌹 Rose',''],['Red','']],
+          [['🌞 Sun',''],['Yellow','']],
+          [['🍇 Grapes',''],['Purple','']],
+        ]
+      },
+      {
+        title: 'Rainbow Order',
+        pairs: [
+          [['1st Rainbow Color',''],['Red','']],
+          [['2nd Rainbow Color',''],['Orange','']],
+          [['3rd Rainbow Color',''],['Yellow','']],
+          [['4th Rainbow Color',''],['Green','']],
+          [['5th Rainbow Color',''],['Blue','']],
+          [['6th Rainbow Color',''],['Violet','']],
+        ]
+      },
+      {
+        title: 'Shades of Colors',
+        pairs: [
+          [['Light Blue',''],['🩵 Sky blue','']],
+          [['Dark Blue',''],['🔵 Navy','']],
+          [['Light Green',''],['🌿 Lime','']],
+          [['Dark Green',''],['🌲 Forest','']],
+          [['Light Pink',''],['🩷 Rose','']],
+          [['Dark Red',''],['🔴 Crimson','']],
+        ]
+      },
+    ],
+
+    Hard: [
+      {
+        title: 'Color Names',
+        pairs: [
+          [['Red',''],['🔴','']],
+          [['Blue',''],['🔵','']],
+          [['Yellow',''],['🟡','']],
+          [['Green',''],['🟢','']],
+          [['Orange',''],['🟠','']],
+          [['Purple',''],['🟣','']],
+          [['Cyan',''],['🩵','']],
+          [['Magenta',''],['🩷','']],
+        ]
+      },
+      {
+        title: 'Color Mixing (Advanced)',
+        pairs: [
+          [['Red + Yellow',''],['Orange','']],
+          [['Blue + Yellow',''],['Green','']],
+          [['Red + Blue',''],['Purple','']],
+          [['Red + White',''],['Pink','']],
+          [['Blue + White',''],['Light Blue','']],
+          [['Yellow + White',''],['Cream','']],
+          [['Black + White',''],['Gray','']],
+          [['Red + Green',''],['Brown','']],
+        ]
+      },
+      {
+        title: 'Colors in Nature',
+        pairs: [
+          [['🌞 Sun',''],['Yellow','']],
+          [['🌊 Ocean',''],['Blue','']],
+          [['🌿 Leaf',''],['Green','']],
+          [['🌹 Rose',''],['Red','']],
+          [['☁️ Cloud',''],['White','']],
+          [['🌑 Night Sky',''],['Black','']],
+          [['🍇 Grapes',''],['Purple','']],
+          [['🥕 Carrot',''],['Orange','']],
+        ]
+      },
+      {
+        title: 'Rainbow Order (Full)',
+        pairs: [
+          [['1st Rainbow Color',''],['Red','']],
+          [['2nd Rainbow Color',''],['Orange','']],
+          [['3rd Rainbow Color',''],['Yellow','']],
+          [['4th Rainbow Color',''],['Green','']],
+          [['5th Rainbow Color',''],['Blue','']],
+          [['6th Rainbow Color',''],['Indigo','']],
+          [['7th Rainbow Color',''],['Violet','']],
+          [['Acronym for Rainbow',''],['ROYGBIV','']],
+        ]
+      },
+      {
+        title: 'Shades and Tints',
+        pairs: [
+          [['🩵 Cyan',''],['Blue-Green','']],
+          [['🩷 Magenta',''],['Pink-Purple','']],
+          [['🟤 Brown',''],['Dark Orange-Red','']],
+          [['🌸 Lavender',''],['Light Purple','']],
+          [['🌿 Lime',''],['Bright Yellow-Green','']],
+          [['🔵 Navy',''],['Dark Blue','']],
+          [['🟡 Gold',''],['Shiny Yellow','']],
+          [['⚫ Charcoal',''],['Dark Gray','']],
+        ]
+      },
+    ],
+  },
+};
+
+// ============== SEQUENCE GAME DATA ==============
+// TODO: Add actual sequence content when case study data is provided.
+// Format: each entry is an ordered array of steps the player must arrange correctly.
+// { label: string shown on the card, order: correct position (1-based) }
+const SEQUENCE_DATA = {
+  Math: {
+    Easy: [
+      // Counting 1 to 4
+      { title: 'Count to 4', steps: ['1 – One','2 – Two','3 – Three','4 – Four'] },
+    ],
+    Medium: [
+      // Counting by 2s
+      { title: 'Skip Count by 2', steps: ['2','4','6','8','10','12'] },
+    ],
+    Hard: [
+      // Multiplication steps
+      { title: 'Multiply 3 × 4 Step-by-Step', steps: ['Start with 3','Add 3 → 6','Add 3 → 9','Add 3 → 12'] },
+      { title: 'Count by 5s to 40', steps: ['5','10','15','20','25','30','35','40'] },
+    ]
+  },
+  Shapes: {
+    Easy: [
+      { title: 'Sides: Fewest to Most', steps: ['Circle (0)','Triangle (3)','Square (4)','Rectangle (4)'] },
+    ],
+    Medium: [
+      { title: 'Shapes by Sides', steps: ['Circle (0)','Triangle (3)','Square (4)','Pentagon (5)','Hexagon (6)','Octagon (8)'] },
+    ],
+    Hard: [
+      { title: 'Shapes by Sides (Full)', steps: ['Circle (0)','Triangle (3)','Square (4)','Pentagon (5)','Hexagon (6)','Heptagon (7)','Octagon (8)','Nonagon (9)'] },
+    ]
+  },
+  Animals: {
+    Easy: [
+      { title: 'Baby Animal Names', steps: ['Puppy – Baby Dog','Kitten – Baby Cat','Calf – Baby Cow','Lamb – Baby Sheep'] },
+    ],
+    Medium: [
+      { title: 'Baby Animal Names (More)', steps: ['Chick – Baby Chicken','Piglet – Baby Pig','Foal – Baby Horse','Kid – Baby Goat','Duckling – Baby Duck','Cub – Baby Bear'] },
+    ],
+    Hard: [
+      { title: 'Animal Facts A–Z', steps: ['Bat – Mammal that flies','Dolphin – Uses echolocation','Elephant – Strong memory','Giraffe – Tallest land animal','Kangaroo – Pouch carrier','Panda – Eats bamboo','Parrot – Mimics sounds','Penguin – Cannot fly'] },
+    ]
+  },
+  Colors: {
+    Easy: [
+      { title: 'Rainbow Order (4)', steps: ['Red','Yellow','Green','Blue'] },
+    ],
+    Medium: [
+      { title: 'Rainbow Order (6)', steps: ['Red','Orange','Yellow','Green','Blue','Purple'] },
+    ],
+    Hard: [
+      { title: 'Full Spectrum', steps: ['Red','Orange','Yellow','Green','Cyan','Blue','Purple','Magenta'] },
+    ]
+  }
+};
+
+const CARD_BACKS = {
+  Easy: 'imgs/card_Easy.png',
+  Medium: 'imgs/card_Medium.png',
+  Hard: 'imgs/card_Hard.png'
+};
+
+const AVATARS = ['🚀','🌟','🎯','🦊','🐯','🦁','🎮','💎','🌙','⭐','🏆','🎪'];
+const EXPOSURE_TIME = {Easy: 4000, Medium: 2500, Hard: 1500};
+
+// APP STATE
+let state = {
+  screen: 'menu',
+  role: null,
+  gameMode: 'memory',
+  studentName: '',
+  sessionId: '',
+  category: 'Math',
+  difficulty: 'Easy',
+  totalLevels: 3,
+  baseline: 70,
+  currentLevel: 1,
+  // game stats
+  moves: 0,
+  matches: 0,
+  restarts: 0,
+  totalMistakes: 0,
+  totalMoves: 0,
+  totalTime: 0,
+  startTime: null,
+  timerInterval: null,
+  elapsed: 0,
+  // cards
+  cards: [],
+  flipped: [],
+  locked: false,
+  // peer
+  peer: null,
+  conn: null, // student's connection to host
+  connections: {}, // host's connections: peerId -> {name, conn}
+  students: {}, // studentId -> {name, level, moves, time, accuracy, status, restarts}
+  gameStarted: false,
+};
+
+// UTILS
+function showScreen(id) {
+  $('.screen').removeClass('active');
+  $('#screen-' + id).addClass('active');
+  state.screen = id;
+  // hide top header on menu, show on other screens
+  if (id === 'menu') {
+    $('body').addClass('on-menu');
+  } else {
+    $('body').removeClass('on-menu');
+  }
+}
+
+function showToast(msg, dur=2000) {
+  $('#toast').text(msg).fadeIn(200);
+  setTimeout(() => $('#toast').fadeOut(300), dur);
+}
+
+function generateSessionId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  let id = '';
+  for(let i=0;i<4;i++) id += chars[Math.floor(Math.random()*chars.length)];
+  return id;
+}
+
+function shuffle(arr) {
+  let a = [...arr];
+  for(let i=a.length-1;i>0;i--) {
+    let j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function formatTime(s) {
+  if(s < 60) return s + 's';
+  return Math.floor(s/60) + 'm ' + (s%60) + 's';
+}
+
+function calcAccuracy() {
+  // Use cumulative moves and mistakes across all levels
+  const totalMovesAll = state.totalMoves + state.moves;
+  const totalMistakesAll = (state.totalMistakes || 0);
+  // totalMoves = pairs attempted (each move is 2 cards), matches = successful pairs
+  // accuracy = matches / moves * 100
+  // But we track per-level: state.matches = current level matches, state.moves = current level moves
+  // Across levels: totalMoves + moves = total pair attempts, totalMistakes = total mismatches so far
+  const totalMatches = totalMovesAll - totalMistakesAll;
+  if(totalMovesAll === 0) return 0;
+  return Math.round((Math.max(0, totalMatches) / totalMovesAll) * 100);
+}
+
+// STARS
+(function() {
+  $('body').addClass('on-menu'); // menu is default
+  const sf = document.getElementById('starfield');
+  for(let i=0;i<120;i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random()*3+1;
+    s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${Math.random()*4+2}s;animation-delay:-${Math.random()*6}s`;
+    sf.appendChild(s);
+  }
+})();
+
+// NAVIGATION
+$(function() {
+
+$('#btn-play').on('click',()=>showScreen('role'));
+$('#btn-help').on('click',()=>showScreen('help'));
+$('#btn-about').on('click',()=>showScreen('about'));
+$('#btn-exit').on('click',()=>showModal('Exit','Are you sure you want to exit?',[
+  {label:'Yes, Exit',cls:'btn-red',cb:()=>window.close()},
+  {label:'Cancel',cls:'btn-back',cb:hideModal}
+]));
+$('#help-back,#about-back').on('click',()=>showScreen('menu'));
+$('#role-back').on('click',()=>showScreen('menu'));
+$('#join-back').on('click',()=>showScreen('role'));
+$('#setup-back').on('click',()=>showScreen('catselect'));
+$('#catsel-back').on('click',()=>showScreen('modeselect'));
+
+// Mode card hover effects
+$('#mode-memory,#mode-sequence').on('mouseenter',function(){
+  $(this).css({'transform':'translateY(-6px)','box-shadow':'0 16px 40px rgba(148,77,198,.55)','border-color':'#ffde59'});
+}).on('mouseleave',function(){
+  $(this).css({'transform':'','box-shadow':'0 0 24px rgba(148,77,198,.35)','border-color':'var(--planet-purple)'});
+});
+
+// Visual category select handlers
+$('.catsel-select-btn, .catsel-card').on('click', function() {
+  const cat = $(this).data('cat') || $(this).closest('[data-cat]').data('cat');
+  if (!cat) return;
+  state.category = cat;
+  $('#setup-category').val(cat);
+  // Update the display name in the setup screen
+  const catLabels = { Math: 'Mathematics', Shapes: 'Shapes', Animals: 'Animals', Colors: 'Colors' };
+  $('#chosen-cat-name').text(catLabels[cat] || cat);
+  initSetup();
+  showScreen('setup');
+});
+$('#btn-restart-game').on('click',restartGame);
+$('#game-main-menu,#lc-main-menu,#go-main-menu,#dash-main-menu').on('click',goMainMenu);
+$('#dash-exit').on('click',()=>showModal('Exit','End session and exit?',[
+  {label:'Exit',cls:'btn-red',cb:()=>goMainMenu()},
+  {label:'Cancel',cls:'btn-back',cb:hideModal}
+]));
+
+$('#role-student').on('click',()=>{ state.role='student'; showScreen('join'); });
+$('#role-instructor').on('click',()=>{ state.role='instructor'; showScreen('modeselect'); });
+$('#mode-memory').on('click',()=>{ state.gameMode='memory'; showScreen('catselect'); });
+$('#mode-sequence').on('click',()=>{ state.gameMode='sequence'; showScreen('catselect'); });
+$('#modesel-back').on('click',()=>showScreen('role'));
+
+// Join Game
+$('#btn-join-play').on('click', joinGame);
+$('#join-session-id').on('input', function() {
+  $(this).val($(this).val().toUpperCase());
+});
+
+// Setup
+$('#btn-regen-id').on('click',()=>{
+  $('#setup-session-id').text(generateSessionId());
+});
+$('#btn-connect-dashboard').on('click', connectDashboard);
+
+// Dashboard
+$('#btn-start-game').on('click', instructorStartGame);
+$('#btn-export-csv').on('click', exportCSV);
+
+// Game
+$('#btn-next-level').on('click', function() {
+  $('#overlay-levelcomplete').removeClass('show');
+  nextLevel();
+});
+$('#lc-menu-btn').on('click', function() {
+  $('#overlay-levelcomplete').removeClass('show');
+  goMainMenu();
+});
+$('#btn-play-again').on('click', function() {
+  $('#overlay-gameover').removeClass('show');
+  state.currentLevel = 1;
+  state.totalMoves = 0; state.totalTime = 0;
+  state.restarts = 0; state.totalMistakes = 0;
+  startGame();
+});
+$('#go-menu-btn').on('click', function() {
+  $('#overlay-gameover').removeClass('show');
+  goMainMenu();
+});
+// btn-play-again handled in overlay binding above
+
+});
+
+// SETUP
+function initSetup() {
+  const sid = generateSessionId();
+  $('#setup-session-id').text(sid);
+}
+
+// PEER: INSTRUCTOR
+function connectDashboard() {
+  state.category = $('#setup-category').val();
+  state.difficulty = $('#setup-difficulty').val();
+  state.totalLevels = parseInt($('#setup-levels').val());
+  state.baseline = parseInt($('#setup-baseline').val());
+  state.sessionId = $('#setup-session-id').text().trim();
+
+  const peerId = 'mmp-host-' + state.sessionId;
+
+  showToast('Creating session...', 3000);
+
+  if(state.peer) { try{state.peer.destroy();}catch(e){} }
+
+  state.students = {};
+  state.gameStarted = false;
+
+  try {
+    state.peer = new Peer(peerId, {debug:0});
+  } catch(e) {
+    showToast('PeerJS error: ' + e.message, 3000);
+    return;
+  }
+
+  state.peer.on('open', id => {
+    updateDashboard();
+    showDashboard();
+    showToast('✅ Session ' + state.sessionId + ' is live!', 3000);
+  });
+
+  state.peer.on('error', err => {
+    if(err.type === 'unavailable-id') {
+      state.sessionId = generateSessionId();
+      $('#setup-session-id').text(state.sessionId);
+      showToast('ID taken, generated new: ' + state.sessionId, 3000);
+    } else {
+      showToast('Connection error: ' + err.message, 3000);
+    }
+  });
+
+  state.peer.on('connection', conn => {
+    conn.on('open', () => {
+      const sid = conn.peer;
+      conn.on('data', data => handleStudentData(sid, conn, data));
+      conn.on('close', () => {
+        if(state.students[sid]) state.students[sid].status = 'Exited';
+        updateDashboard();
+      });
+      // If game already started, send start immediately
+      if(state.gameStarted) {
+        conn.send({type:'start', category:state.category, difficulty:state.difficulty, totalLevels:state.totalLevels});
+      }
+    });
+  });
+}
+
+function handleStudentData(sid, conn, data) {
+  if(data.type === 'join') {
+    state.students[sid] = {
+      name: data.name,
+      level: 0, moves: 0, time: 0, accuracy: 0,
+      status: 'Waiting',
+      restarts: 0,
+      conn: conn
+    };
+    // Update player count across all students
+    broadcastPlayerList();
+    updateDashboard();
+    updateStartZone();
+  } else if(data.type === 'telemetry') {
+    if(state.students[sid]) {
+      Object.assign(state.students[sid], data.stats);
+      updateDashboard();
+    }
+  } else if(data.type === 'done') {
+    if(state.students[sid]) {
+      Object.assign(state.students[sid], data.stats);
+      state.students[sid].status = 'Done';
+      updateDashboard();
+    }
+  }
+}
+
+function broadcastPlayerList() {
+  const list = Object.values(state.students).map(s=>s.name);
+  const count = list.length;
+  Object.values(state.students).forEach(s => {
+    try { s.conn.send({type:'playerlist', players:list, count:count}); } catch(e) {}
+  });
+}
+
+function updateStartZone() {
+  const count = Object.keys(state.students).length;
+  if(count > 0) {
+    $('#start-zone').addClass('ready');
+    $('#start-zone-msg').text(`${count} student(s) ready — click Start Game!`);
+    $('#btn-start-game').prop('disabled', false);
+  } else {
+    $('#start-zone').removeClass('ready');
+    $('#start-zone-msg').text('Waiting for students to join...');
+    $('#btn-start-game').prop('disabled', true);
+  }
+}
+
+function instructorStartGame() {
+  state.gameStarted = true;
+  Object.values(state.students).forEach(s => {
+    s.status = 'Playing';
+    try {
+      s.conn.send({type:'start', category:state.category, difficulty:state.difficulty, totalLevels:state.totalLevels});
+    } catch(e) {}
+  });
+  updateDashboard();
+  showToast('🎮 Game started for all students!', 2000);
+}
+
+function showDashboard() {
+  $('#dash-session-badge').text(state.sessionId);
+  $('#dash-cat-badge').text(state.category);
+  $('#dash-diff-badge').text(state.difficulty);
+  $('#dash-level-badge').text(state.totalLevels + ' Levels');
+  showScreen('dashboard');
+
+  // Periodic sync
+  if(window._dashInterval) clearInterval(window._dashInterval);
+  window._dashInterval = setInterval(updateDashboard, 2000);
+}
+
+function updateDashboard() {
+  const students = Object.values(state.students);
+  const count = students.length;
+  const playing = students.filter(s=>s.status==='Playing').length;
+  const avgAcc = count ? Math.round(students.reduce((a,s)=>a+(s.accuracy||0),0)/count) : 0;
+
+  $('#dash-students-joined').text(count);
+  $('#dash-playing').text(playing);
+  $('#dash-avg-acc').text(avgAcc+'%');
+
+  // Sort by accuracy desc, then moves asc
+  const sorted = [...students].sort((a,b)=>{
+    if(b.accuracy !== a.accuracy) return (b.accuracy||0)-(a.accuracy||0);
+    return (a.moves||0)-(b.moves||0);
+  });
+
+  let flags = 0;
+  let html = '';
+  sorted.forEach((s,i) => {
+    const acc = s.accuracy || 0;
+    const flag = acc < state.baseline && s.status === 'Playing';
+    if(flag) flags++;
+    const statusCls = {Done:'status-done',Playing:'status-playing',Exited:'status-exited',Waiting:'status-waiting'}[s.status] || 'status-waiting';
+    html += `<tr>
+      <td class="rank-num">${i+1}</td>
+      <td class="rank-name">${s.name}</td>
+      <td>${s.level||0}/${state.totalLevels}</td>
+      <td>${s.moves||0}</td>
+      <td>${formatTime(s.time||0)}</td>
+      <td style="color:${acc<state.baseline?'#e84040':'#3dd68c'}">${acc}%</td>
+      <td><span class="${statusCls}">${s.status}</span></td>
+      <td>${flag ? '<span class="flag-red">🚩</span>' : '—'}</td>
+    </tr>`;
+  });
+
+  $('#dash-flags').text(flags);
+  $('#rank-tbody').html(html);
+  updateStartZone();
+}
+
+// PEER: STUDENT
+function joinGame() {
+  const name = $('#student-name').val().trim();
+  const sid = $('#join-session-id').val().trim().toUpperCase();
+
+  if(!name) { $('#join-error').text('Please enter your name.').show(); return; }
+  if(sid.length !== 4) { $('#join-error').text('Session ID must be 4 letters.').show(); return; }
+
+  $('#join-error').hide();
+  state.studentName = name;
+  state.sessionId = sid;
+
+  const hostId = 'mmp-host-' + sid;
+  if(state.peer) { try{state.peer.destroy();}catch(e){} }
+  state.peer = new Peer(undefined, {debug:0});
+
+  state.peer.on('open', myId => {
+    state.conn = state.peer.connect(hostId);
+
+    state.conn.on('open', () => {
+      // Connected!
+      $('#conn-dot').addClass('connected');
+      $('#conn-text').text('Connected to instructor!');
+      state.conn.send({type:'join', name:state.studentName});
+
+      // Show waiting room
+      $('#wait-welcome').text('Welcome, ' + state.studentName + '!');
+      $('#wait-session').text(sid);
+      showScreen('waiting');
+
+      // Add self to player list
+      addPlayerToList(state.studentName, true);
+    });
+
+    state.conn.on('data', data => {
+      if(data.type === 'start') {
+        state.category = data.category;
+        state.difficulty = data.difficulty;
+        state.totalLevels = data.totalLevels;
+        state.currentLevel = 1;
+        state.totalMoves = 0;
+        state.totalTime = 0;
+        state.restarts = 0;
+        startGame();
+      } else if(data.type === 'playerlist') {
+        updatePlayerList(data.players, data.count);
+      }
+    });
+
+    state.conn.on('close', () => {
+      showToast('⚠️ Disconnected from session', 3000);
+    });
+
+    state.conn.on('error', e => {
+      $('#join-error').text('Connection failed. Check Session ID.').show();
+      showScreen('join');
+    });
+  });
+
+  state.peer.on('error', e => {
+    $('#join-error').text('Could not connect. Check Session ID.').show();
+  });
+
+  showToast('Connecting...', 2000);
+}
+
+function addPlayerToList(name, isSelf=false) {
+  const avatar = AVATARS[Math.floor(Math.random()*AVATARS.length)];
+  const item = $(`<div class="player-list-item">
+    <span class="player-avatar">${avatar}</span>
+    <span class="player-name">${name}${isSelf?' (You)':''}</span>
+  </div>`);
+  $('#player-list').prepend(item);
+}
+
+function updatePlayerList(players, count) {
+  $('#player-list').empty();
+  players.forEach((name,i) => {
+    const avatar = AVATARS[i % AVATARS.length];
+    const isSelf = name === state.studentName;
+    const item = $(`<div class="player-list-item">
+      <span class="player-avatar">${avatar}</span>
+      <span class="player-name">${name}${isSelf?' (You)':''}</span>
+    </div>`);
+    $('#player-list').append(item);
+  });
+  $('#player-count-badge').text(`👥 ${count} Player${count!==1?'s':''} in Lobby`);
+}
+
+// GAME ENGINE
+function startGame() {
+  clearInterval(state.timerInterval);
+  state.moves = 0;
+  state.matches = 0;
+  state.elapsed = 0;
+  state.flipped = [];
+  state.locked = false;
+  state.startTime = Date.now();
+
+  const pairs = getPairs();
+  buildCardGrid(pairs);
+  updateGameUI();
+
+  // Meta tags
+  const diffCls = {Easy:'meta-diff-easy',Medium:'meta-diff-medium',Hard:'meta-diff-hard'}[state.difficulty];
+  $('#game-meta-tags').html(`
+    <span class="meta-tag meta-cat">${state.category}</span>
+    <span class="meta-tag ${diffCls}">${state.difficulty}</span>
+    <span class="meta-tag meta-level">Level ${state.currentLevel}/${state.totalLevels}</span>
+  `);
+  $('#game-student-name').text(state.studentName || 'Player');
+  $('#stat-level').text(state.currentLevel + '/' + state.totalLevels);
+
+  showScreen('game');
+
+  // Pre-game exposure
+  const expTime = EXPOSURE_TIME[state.difficulty];
+  $('#exposure-container').show();
+  // Flip all cards face up
+  $('.mem-card').addClass('flipped');
+  state.locked = true;
+
+  let fill = 100;
+  const step = 100 / (expTime / 50);
+  $('#exposure-fill').css('width','100%').css('transition','none');
+
+  setTimeout(()=>{
+    $('#exposure-fill').css('transition','width ' + expTime + 'ms linear').css('width','0%');
+  }, 50);
+
+  setTimeout(() => {
+    $('.mem-card').removeClass('flipped');
+    $('#exposure-container').hide();
+    state.locked = false;
+    state.startTime = Date.now();
+    // Start timer
+    state.timerInterval = setInterval(() => {
+      state.elapsed = Math.round((Date.now() - state.startTime) / 1000);
+      $('#stat-time').text(formatTime(state.elapsed));
+      sendTelemetry();
+    }, 1000);
+  }, expTime);
+}
+
+function getPairs() {
+  const games = GAME_DATA[state.category] && GAME_DATA[state.category][state.difficulty];
+  if(!games || !games.length) return [];
+  // Cycle through games based on current level, wrapping around if more levels than games
+  const gameIndex = (state.currentLevel - 1) % games.length;
+  const game = games[gameIndex];
+  // Show the sub-theme title if element exists
+  if(game && game.title && document.getElementById('game-subtitle')) {
+    document.getElementById('game-subtitle').textContent = game.title;
+  }
+  return shuffle(game.pairs);
+}
+
+function buildCardGrid(pairs) {
+  const n = pairs.length;
+  // Create pair of cards for each pair
+  let cards = [];
+  pairs.forEach((pair, idx) => {
+    cards.push({id:idx*2,   pairId:idx, side:0, text:pair[0][0], emoji:pair[0][1]});
+    cards.push({id:idx*2+1, pairId:idx, side:1, text:pair[1][0], emoji:pair[1][1]});
+  });
+  cards = shuffle(cards);
+  state.cards = cards;
+
+  // Determine grid cols
+  const total = cards.length;
+  const cols = total <= 8 ? 4 : total <= 12 ? 4 : 4;
+
+  const $grid = $('#card-grid');
+  $grid.css('grid-template-columns', `repeat(${cols}, 1fr)`).empty();
+
+  const backSrc = CARD_BACKS[state.difficulty];
+
+  cards.forEach(card => {
+    const hasEmoji = card.emoji && card.emoji.trim();
+    const frontContent = hasEmoji
+      ? `<div class="card-front-emoji">${card.emoji}</div><div class="card-front-text">${card.text}</div>`
+      : `<div class="card-front-text" style="font-size:clamp(13px,2.5vw,20px)">${card.text}</div>`;
+
+    const $card = $(`<div class="mem-card" data-id="${card.id}" data-pair="${card.pairId}">
+      <div class="mem-card-inner">
+        <div class="card-back"><img class="card-back-img" src="${backSrc}" alt="card back"></div>
+        <div class="card-front">${frontContent}</div>
+      </div>
+    </div>`);
+
+    $card.on('click', function() { flipCard($(this)); });
+    $grid.append($card);
+  });
+}
+
+function flipCard($card) {
+  if(state.locked) return;
+  if($card.hasClass('flipped') || $card.hasClass('matched')) return;
+  if(state.flipped.length >= 2) return;
+
+  $card.addClass('flipped');
+  state.flipped.push($card);
+
+  if(state.flipped.length === 2) {
+    state.moves++;
+    updateGameUI();
+    checkMatch();
+  }
+}
+
+function checkMatch() {
+  const [$a, $b] = state.flipped;
+  const pairA = $a.data('pair');
+  const pairB = $b.data('pair');
+
+  if(pairA === pairB) {
+    // Match!
+    state.matches++;
+    $a.addClass('matched'); $b.addClass('matched');
+    state.flipped = [];
+    updateGameUI();
+    sendTelemetry();
+
+    // Check level complete
+    const totalPairs = state.cards.length / 2;
+    if(state.matches >= totalPairs) {
+      clearInterval(state.timerInterval);
+      state.totalTime += state.elapsed;
+      state.totalMoves += state.moves;
+      setTimeout(levelComplete, 600);
+    }
+  } else {
+    // No match
+    state.locked = true;
+    state.totalMistakes++;
+    setTimeout(() => {
+      $a.removeClass('flipped');
+      $b.removeClass('flipped');
+      state.flipped = [];
+      state.locked = false;
+      updateGameUI();
+      sendTelemetry();
+    }, 900);
+  }
+}
+
+function updateGameUI() {
+  const acc = calcAccuracy();
+  $('#stat-moves').text(state.moves);
+  $('#stat-acc').text(acc + '%');
+}
+
+function restartGame() {
+  clearInterval(state.timerInterval);
+  state.restarts++;
+  state.moves = 0;
+  state.matches = 0;
+  startGame();
+}
+
+function sendTelemetry() {
+  if(!state.conn || !state.conn.open) return;
+  const acc = calcAccuracy();
+  state.conn.send({
+    type: 'telemetry',
+    stats: {
+      level: state.currentLevel,
+      moves: state.totalMoves + state.moves,
+      time: state.totalTime + state.elapsed,
+      accuracy: acc,
+      status: 'Playing',
+      restarts: state.restarts
+    }
+  });
+}
+
+function levelComplete() {
+  if(state.currentLevel >= state.totalLevels) {
+    gameOver();
+    return;
+  }
+
+  const titles = ['⭐ Level Complete!', '🌟 Excellent!', '🏅 Amazing!', '🔥 On Fire!', '💎 Genius!'];
+  const subs   = ["Keep going, you're doing great!", "You're on a roll!", "Unstoppable!", "Keep it up!", "Nearly there!"];
+  const idx    = Math.min(state.currentLevel - 1, titles.length - 1);
+  $('#lc-title').text(titles[idx]);
+  $('#lc-sub').text(subs[idx]);
+  $('#lc-moves').text(state.moves);
+  $('#lc-time').text(formatTime(state.elapsed));
+  $('#lc-mistakes').text(state.totalMistakes || 0);
+  const lcAcc = state.matches > 0 ? Math.round((state.matches / (state.matches + (state.totalMistakes||0))) * 100) : 0;
+  $('#lc-accuracy').text(lcAcc + '%');
+  // Swap icon per performance
+  const icons = ['⭐','🌟','🏅','🔥','💎'];
+  $('#lc-icon').text(icons[idx] || '⭐');
+
+  launchConfetti();
+  $('#overlay-levelcomplete').addClass('show');
+}
+
+function nextLevel() {
+  state.totalMoves += state.moves;
+  state.totalTime  += state.elapsed;
+  state.currentLevel++;
+  startGame();
+}
+
+function gameOver() {
+  const totalMoves = state.totalMoves + state.moves;
+  const totalTime  = state.totalTime + state.elapsed;
+  const acc        = calcAccuracy();
+  const mistakes   = state.totalMistakes + (state.moves - state.matches);
+
+  // Populate overlay
+  const name = state.studentName || 'Player';
+  $('#go-player-name').text('🎉 ' + name);
+  $('#go-moves').text(totalMoves);
+  $('#go-time').text(formatTime(totalTime));
+  $('#go-mistakes').text(mistakes);
+  $('#go-acc').text(acc + '%');
+
+  // Show final rankings if instructor role
+  if(state.role === 'instructor' && Object.keys(state.students).length) {
+    buildFinalRankings();
+    $('#final-rankings-wrap').show();
+  } else {
+    $('#final-rankings-wrap').hide();
+  }
+
+  // Notify instructor
+  if(state.conn && state.conn.open) {
+    state.conn.send({
+      type: 'done',
+      stats: {
+        level: state.currentLevel,
+        moves: totalMoves,
+        time: totalTime,
+        accuracy: acc,
+        status: 'Done',
+        restarts: state.restarts
+      }
+    });
+  }
+
+  launchConfetti(60);
+  $('#overlay-gameover').addClass('show');
+}
+
+function goMainMenu() {
+  clearInterval(state.timerInterval);
+  if(window._dashInterval) clearInterval(window._dashInterval);
+  if(state.peer) { try{state.peer.destroy();}catch(e){} state.peer=null; }
+  state.conn = null;
+  state.students = {};
+  state.gameStarted = false;
+  hideModal();
+  showScreen('menu');
+}
+
+// ============== EXPORT CSV ==============
+function exportCSV() {
+  const students = Object.values(state.students);
+  if(!students.length) { showToast('No student data yet!', 2000); return; }
+
+  let csv = 'Rank,Name,Level,Moves,Time(s),Accuracy,Status\n';
+  const sorted = [...students].sort((a,b)=>(b.accuracy||0)-(a.accuracy||0));
+  sorted.forEach((s,i) => {
+    csv += `${i+1},"${s.name}",${s.level||0}/${state.totalLevels},${s.moves||0},${s.time||0},${s.accuracy||0}%,"${s.status}"\n`;
+  });
+
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `MMP_Session_${state.sessionId}_Results.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 CSV exported!', 2000);
+}
+
+// MODAL
+function showModal(title, body, btns) {
+  $('#modal-title').text(title);
+  $('#modal-body').text(body);
+  const $bb = $('#modal-btns').empty();
+  btns.forEach(b => {
+    const $btn = $(`<button class="btn ${b.cls}">${b.label}</button>`);
+    $btn.on('click', b.cb);
+    $bb.append($btn);
+  });
+  $('#modal').addClass('show');
+}
+
+function hideModal() {
+  $('#modal').removeClass('show');
+}
+
+// CONFETTI
+function launchConfetti(n=40) {
+  const colors = ['#f5c842','#f07a28','#3dd68c','#3dd6e8','#e840e8','#ffffff'];
+  for(let i=0;i<n;i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${Math.random()*2+2}s;animation-delay:${Math.random()*0.5}s;transform:rotate(${Math.random()*360}deg);width:${Math.random()*10+5}px;height:${Math.random()*10+5}px`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 3000);
+  }
+}
+// ============== SETTINGS ==============
+const audioSettings = {
+  sfxEnabled: true,
+  sfxVolume: 0.8,
+  musicEnabled: true,
+  musicVolume: 0.5,
+};
+
+// Load persisted settings
+(function loadSettings() {
+  try {
+    const saved = localStorage.getItem('mmp_settings');
+    if (saved) Object.assign(audioSettings, JSON.parse(saved));
+  } catch(e) {}
+})();
+
+function saveAudioSettings() {
+  try { localStorage.setItem('mmp_settings', JSON.stringify(audioSettings)); } catch(e) {}
+}
+
+function openSettings() {
+  // Sync UI to current state
+  $('#sfx-toggle').prop('checked', audioSettings.sfxEnabled);
+  $('#music-toggle').prop('checked', audioSettings.musicEnabled);
+  $('#sfx-volume').val(Math.round(audioSettings.sfxVolume * 100));
+  $('#sfx-vol-label').text(Math.round(audioSettings.sfxVolume * 100) + '%');
+  $('#music-volume').val(Math.round(audioSettings.musicVolume * 100));
+  $('#music-vol-label').text(Math.round(audioSettings.musicVolume * 100) + '%');
+  updateSettingsUI();
+  $('#settings-modal').addClass('show');
+}
+
+function updateSettingsUI() {
+  const sfxOn = $('#sfx-toggle').is(':checked');
+  const musOn = $('#music-toggle').is(':checked');
+  $('#sfx-volume-row').css('opacity', sfxOn ? '1' : '0.4').find('input').prop('disabled', !sfxOn);
+  $('#music-volume-row').css('opacity', musOn ? '1' : '0.4').find('input').prop('disabled', !musOn);
+}
+
+$(function() {
+  // Open settings
+  $('#btn-settings').on('click', openSettings);
+
+  // Toggle change
+  $('#sfx-toggle, #music-toggle').on('change', updateSettingsUI);
+
+  // Volume slider live labels
+  $('#sfx-volume').on('input', function() {
+    $('#sfx-vol-label').text($(this).val() + '%');
+  });
+  $('#music-volume').on('input', function() {
+    $('#music-vol-label').text($(this).val() + '%');
+  });
+
+  // Save
+  $('#settings-save').on('click', function() {
+    audioSettings.sfxEnabled   = $('#sfx-toggle').is(':checked');
+    audioSettings.musicEnabled = $('#music-toggle').is(':checked');
+    audioSettings.sfxVolume    = parseInt($('#sfx-volume').val()) / 100;
+    audioSettings.musicVolume  = parseInt($('#music-volume').val()) / 100;
+    saveAudioSettings();
+    applyAudioSettings();
+    $('#settings-modal').removeClass('show');
+    showToast('✅ Settings saved!', 1800);
+  });
+
+  // Close without saving
+  $('#settings-close').on('click', function() {
+    $('#settings-modal').removeClass('show');
+  });
+
+  // Apply on load
+  applyAudioSettings();
+});
+
+function applyAudioSettings() {
+  // Hook into the Web Audio API if music/sfx nodes are created elsewhere.
+  // For now, expose the settings globally so any audio code can read them.
+  window.mmpAudio = audioSettings;
+
+  // If a bgMusic element exists in the page, apply immediately
+  const bg = document.getElementById('bg-music');
+  if (bg) {
+    bg.volume = audioSettings.musicEnabled ? audioSettings.musicVolume : 0;
+    if (audioSettings.musicEnabled) {
+      bg.play().catch(()=>{});
+    } else {
+      bg.pause();
+    }
+  }
+}
+
+// Utility for other parts of the game to play SFX respecting settings
+function playSFX(audioEl) {
+  if (!audioSettings.sfxEnabled) return;
+  if (!audioEl) return;
+  audioEl.volume = audioSettings.sfxVolume;
+  audioEl.currentTime = 0;
+  audioEl.play().catch(()=>{});
+}
+
+</script>
+<div class="result-overlay" id="overlay-levelcomplete">
+  <div class="result-box">
+    <div class="result-icon" id="lc-icon">⭐</div>
+    <div class="result-title" id="lc-title">Level Complete!</div>
+    <div class="result-sub" id="lc-sub">Keep going, you're doing great!</div>
+    <div class="result-stats result-stats-4">
+      <div class="result-stat"><div class="rs-val" id="lc-moves">0</div><div class="rs-lbl">MOVES</div></div>
+      <div class="result-stat"><div class="rs-val" id="lc-time">0s</div><div class="rs-lbl">TIME</div></div>
+      <div class="result-stat"><div class="rs-val" id="lc-mistakes">0</div><div class="rs-lbl">MISTAKES</div></div>
+      <div class="result-stat"><div class="rs-val" id="lc-accuracy">0%</div><div class="rs-lbl">ACCURACY</div></div>
+    </div>
+    <button class="result-btn-primary" id="btn-next-level">▶ Next Level</button>
+    <button class="result-btn-secondary" id="lc-menu-btn">🏠 Main Menu</button>
+  </div>
+</div>
+
+<!-- ══════════ GAME OVER / ALL LEVELS COMPLETE OVERLAY ══════════ -->
+<div class="result-overlay" id="overlay-gameover">
+  <div class="result-box">
+    <div class="result-icon">🏆</div>
+    <div class="result-title">You Did It!</div>
+    <div class="result-player" id="go-player-name">🎉 Player</div>
+    <div class="result-sub">Session Complete! Here are your final stats:</div>
+    <div class="result-stats result-stats-4">
+      <div class="result-stat"><div class="rs-val" id="go-moves">0</div><div class="rs-lbl">TOTAL MOVES</div></div>
+      <div class="result-stat"><div class="rs-val" id="go-time">0s</div><div class="rs-lbl">TOTAL TIME</div></div>
+      <div class="result-stat"><div class="rs-val" id="go-mistakes">0</div><div class="rs-lbl">MISTAKES</div></div>
+      <div class="result-stat"><div class="rs-val" id="go-acc">0%</div><div class="rs-lbl">ACCURACY</div></div>
+    </div>
+    <button class="result-btn-primary" id="btn-play-again">🔄 Play Again</button>
+    <button class="result-btn-secondary" id="go-menu-btn">🏠 Main Menu</button>
+    <!-- Final rankings for instructor -->
+    <div id="final-rankings-wrap" style="display:none;width:100%;margin-top:20px">
+      <div style="font-family:'Fredoka One',cursive;font-size:20px;color:#1a6b3c;text-align:center;margin-bottom:10px">🏆 Final Rankings</div>
+      <div style="overflow-x:auto">
+        <table class="final-rank-table" id="final-rank-table">
+          <thead><tr><th>Rank</th><th>Name</th><th>Accuracy</th><th>Time</th><th>Moves</th></tr></thead>
+          <tbody id="final-rank-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-title" style="font-size:26px">⚙️ Settings</div>
+
+    <!-- Sound Effects -->
+    <div class="settings-row">
+      <div class="settings-label">
+        <span class="settings-icon">🔊</span>
+        <div>
+          <div class="settings-name">Sound Effects</div>
+          <div class="settings-desc">Card flips, matches &amp; alerts</div>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="sfx-toggle" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="settings-row" id="sfx-volume-row">
+      <div class="settings-label" style="width:100%;flex-direction:column;align-items:flex-start;gap:6px">
+        <div style="display:flex;justify-content:space-between;width:100%">
+          <span style="color:var(--text-muted);font-size:13px;text-transform:uppercase;letter-spacing:1px">SFX Volume</span>
+          <span style="color:var(--accent-yellow);font-family:'Fredoka One',cursive;font-size:15px" id="sfx-vol-label">80%</span>
+        </div>
+        <input type="range" class="settings-range" id="sfx-volume" min="0" max="100" value="80">
+      </div>
+    </div>
+
+    <!-- Music -->
+    <div class="settings-row" style="margin-top:8px">
+      <div class="settings-label">
+        <span class="settings-icon">🎵</span>
+        <div>
+          <div class="settings-name">Background Music</div>
+          <div class="settings-desc">Ambient space soundtrack</div>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="music-toggle" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="settings-row" id="music-volume-row">
+      <div class="settings-label" style="width:100%;flex-direction:column;align-items:flex-start;gap:6px">
+        <div style="display:flex;justify-content:space-between;width:100%">
+          <span style="color:var(--text-muted);font-size:13px;text-transform:uppercase;letter-spacing:1px">Music Volume</span>
+          <span style="color:var(--accent-yellow);font-family:'Fredoka One',cursive;font-size:15px" id="music-vol-label">50%</span>
+        </div>
+        <input type="range" class="settings-range" id="music-volume" min="0" max="100" value="50">
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:22px">
+      <button class="btn btn-primary" id="settings-save">✅ Save</button>
+      <button class="btn btn-back" id="settings-close">✖ Close</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
