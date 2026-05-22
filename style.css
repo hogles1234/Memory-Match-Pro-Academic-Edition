@@ -1,5 +1,5 @@
 :root {
-  /* === OFFICIAL COLOR PALETTE === */
+  /*  OFFICIAL COLOR PALETTE  */
   --bg-1: #511079;
   --bg-2: #25013b;
   --purple-dark: #3b0066;
@@ -807,7 +807,7 @@ select.field-input {
   100%{transform:translateY(110vh) rotate(720deg); opacity:0}
 }
 
-/* ===== SETTINGS MODAL ===== */
+/* SETTINGS MODAL */
 .settings-row {
   display: flex;
   align-items: center;
@@ -896,7 +896,7 @@ select.field-input {
   cursor: pointer;
 }
 
-/* ══ SEQUENCE CARD STYLES ══ */
+/* SEQUENCE CARD STYLES */
 .seq-card-front {
   position: relative;
   flex-direction: column;
@@ -921,14 +921,14 @@ select.field-input {
 .seq-text-only {
   font-size: clamp(10px, 1.8vw, 15px);
 }
-/* Correct — green glow */
+/* Correct green glow */
 .seq-card.seq-done .card-front {
   background: linear-gradient(135deg,#0d5c2e,#1aaf6a) !important;
   border-color: var(--accent-green) !important;
   box-shadow: 0 0 18px var(--accent-green);
   cursor: default;
 }
-/* Wrong — red flash + shake */
+/* Wrong red flash + shake */
 .seq-card.seq-wrong .card-front {
   background: linear-gradient(135deg,#6b0018,#cc0033) !important;
   border-color: var(--accent-red) !important;
@@ -963,7 +963,7 @@ select.field-input {
   .mem-card { max-width:120px; }
 }
 
-/* ===== LANDING PAGE REDESIGN ===== */
+/*  LANDING PAGE REDESIGN  */
 #screen-menu {
   position: relative;
   width: 100vw;
@@ -997,7 +997,7 @@ select.field-input {
   animation-delay: -4s;
 }
 
-/* ── Background planets visible on ALL non-menu screens ── */
+/* Background planets visible on ALL non-menu screens  */
 .bg-planet {
   position: fixed;
   pointer-events: none;
@@ -1122,7 +1122,7 @@ body.on-menu .site-header { display: none !important; }
 body.on-menu #app { padding-top: 0; }
 
 
-/* ===== VISUAL CATEGORY SELECT SCREEN ===== */
+/*  VISUAL CATEGORY SELECT SCREEN */
 #screen-catselect {
   max-width: 900px;
 }
@@ -1142,7 +1142,7 @@ body.on-menu #app { padding-top: 0; }
   gap: 18px;
   width: 100%;
 }
-/* Each card is a positioned container – image fills it, overlay on top */
+/* Each card is a positioned container  image fills it, overlay on top */
 .catsel-card {
   border-radius: 18px;
   overflow: hidden;
@@ -1187,7 +1187,7 @@ body.on-menu #app { padding-top: 0; }
   letter-spacing: 1px;
   line-height: 1;
 }
-/* SELECT button – needs pointer events restored */
+/* SELECT button needs pointer events restored */
 .catsel-select-btn {
   pointer-events: all;
   font-family:'Fredoka One',cursive;
@@ -1212,7 +1212,7 @@ body.on-menu #app { padding-top: 0; }
 }
 
 
-/* ═══ RESULT OVERLAYS (Level Complete + Game Over) ═══ */
+/*  RESULT OVERLAYS (Level Complete + Game Over)  */
 .result-overlay {
   display: none;
   position: fixed; inset: 0;
@@ -1309,7 +1309,7 @@ body.on-menu #app { padding-top: 0; }
   text-transform: uppercase;
 }
 
-/* PRIMARY = Next / Play Again — yellow-orange gradient */
+/* PRIMARY = Next / Play Again  yellow-orange gradient */
 .result-btn-primary {
   width: 100%;
   padding: 15px;
@@ -1330,7 +1330,7 @@ body.on-menu #app { padding-top: 0; }
 .result-btn-primary:hover { transform: translateY(-2px); filter: brightness(1.08); }
 .result-btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #a05510; }
 
-/* SECONDARY = Main Menu — ghost purple */
+/* SECONDARY = Main Menu ghost purple */
 .result-btn-secondary {
   width: 100%;
   padding: 13px;
