@@ -80,8 +80,9 @@ body::after {
 
 /* HEADER */
 .site-header {
-  width:100%; text-align:center; padding:18px 20px 0;
+  width:100%; text-align:center; padding:28px 20px 6px;
   position:relative;
+  min-height: 88px;
 }
 .logo-title {
   font-family:'Fredoka One',cursive;
@@ -105,7 +106,7 @@ body::after {
   animation: float 6s ease-in-out infinite;
 }
 @keyframes float {
-  0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)}
+  0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)}
 }
 
 /* SCREEN WRAPPER */
@@ -995,6 +996,24 @@ select.field-input {
   animation: float 8s ease-in-out infinite;
   animation-delay: -4s;
 }
+
+/* ── Background planets visible on ALL non-menu screens ── */
+.bg-planet {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.22;
+  transition: opacity 0.6s ease;
+}
+body.on-menu .bg-planet { opacity: 0; }
+.bg-planet.bp-tl  { width: 160px; top: -40px;   left: -50px;   animation: float 7s  ease-in-out infinite; animation-delay: -1s; }
+.bg-planet.bp-tr  { width: 110px; top: 60px;    right: -30px;  animation: float 5s  ease-in-out infinite; animation-delay: -3s; }
+.bg-planet.bp-ml  { width:  80px; top: 42%;     left:  10px;   animation: float 9s  ease-in-out infinite; animation-delay: -5s; }
+.bg-planet.bp-mr  { width: 130px; top: 38%;     right: -20px;  animation: float 6s  ease-in-out infinite; animation-delay: -2s; }
+.bg-planet.bp-bl  { width: 190px; bottom: -60px; left: -50px;  animation: float 8s  ease-in-out infinite; animation-delay: -4s; }
+.bg-planet.bp-br  { width:  70px; bottom: 80px;  right:  20px; animation: float 6s  ease-in-out infinite; animation-delay: -6s; }
+.bg-planet.bp-bc  { width:  50px; bottom: 20px;  left:  48%;   animation: float 10s ease-in-out infinite; animation-delay: -7s; }
+.bg-planet.bp-tc  { width:  60px; top:  110px;   left:  45%;   animation: float 7s  ease-in-out infinite; animation-delay: -2s; }
 
 /* astronaut on top of violet planet */
 .lp-astronaut {
