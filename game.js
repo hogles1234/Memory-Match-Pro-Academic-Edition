@@ -1,11 +1,11 @@
-// ============== GAME CONTENT DATA ==============
+//GAME CONTENT DATA 
 // Structure: GAME_DATA[category][difficulty] = array of GAMES (one per level).
-// Each GAME = { title, pairs: [ [[textA,emojiA],[textB,emojiB]], ... ] }
+// Each GAME = { title, pairs: [ [[textA,emojiA],[textB,emojiB]]] }
 // getPairs() picks game[(currentLevel-1) % games.length].pairs
 
 const GAME_DATA = {
 
-  // ─────────────── MATHEMATICS ───────────────
+  // MATHEMATICS 
   Math: {
     Easy: [
       {
@@ -182,7 +182,7 @@ const GAME_DATA = {
     ],
   },
 
-  // ─────────────── SHAPES ───────────────
+  //SHAPES 
   Shapes: {
     Easy: [
       {
@@ -359,7 +359,7 @@ const GAME_DATA = {
     ],
   },
 
-  // ─────────────── ANIMALS ───────────────
+  // ANIMALS 
   Animals: {
     Easy: [
       {
@@ -536,9 +536,7 @@ const GAME_DATA = {
     ],
   },
 
-  // ─────────────── COLORS ───────────────
-  // Note: Colors dataset (Case Study 5) had no card pairs defined in the PDF.
-  // These are standard color-matching pairs used as placeholder content.
+  // COLORS 
   Colors: {
     Easy: [
       {
@@ -716,15 +714,15 @@ const GAME_DATA = {
   },
 };
 
-// ══════════════════════════════════════════════════════════════════
+
 // SEQUENCE GAME DATA  — 4 categories × 3 difficulties × 5 rounds
 // Each round: { title, steps[] } — steps listed in CORRECT order.
 // Easy = 4 steps | Medium = 6 steps | Hard = 8 steps
 // The engine shuffles them; the player taps in the right order.
-// ══════════════════════════════════════════════════════════════════
+
 const SEQUENCE_DATA = {
 
-  // ─────────── MATHEMATICS ───────────
+  //MATHEMATICS
   Math: {
     Easy: [
       { title: '☝️ Numbers 1 to 4',
@@ -764,7 +762,7 @@ const SEQUENCE_DATA = {
     ],
   },
 
-  // ─────────── SHAPES ───────────
+  //SHAPES
   Shapes: {
     Easy: [
       { title: '⚪ 2D Shapes: Fewest Sides First',
@@ -804,7 +802,7 @@ const SEQUENCE_DATA = {
     ],
   },
 
-  // ─────────── ANIMALS ───────────
+  // ANIMALS 
   Animals: {
     Easy: [
       { title: '🐄 Farm Animals: Smallest → Biggest',
@@ -844,7 +842,7 @@ const SEQUENCE_DATA = {
     ],
   },
 
-  // ─────────── COLORS ───────────
+  //COLORS
   Colors: {
     Easy: [
       { title: '🌈 Rainbow Order (first 4)',
@@ -973,7 +971,7 @@ function calcAccuracy() {
   const totalMistakesAll = (state.totalMistakes || 0);
   // totalMoves = pairs attempted (each move is 2 cards), matches = successful pairs
   // accuracy = matches / moves * 100
-  // But we track per-level: state.matches = current level matches, state.moves = current level moves
+  //  track per-level: state.matches = current level matches, state.moves = current level moves
   // Across levels: totalMoves + moves = total pair attempts, totalMistakes = total mismatches so far
   const totalMatches = totalMovesAll - totalMistakesAll;
   if(totalMovesAll === 0) return 0;
@@ -1605,7 +1603,6 @@ function nextLevel() {
 function gameOver() {
   let totalMoves, totalTime, totalMistakes;
   if (state.gameMode === 'sequence') {
-    // Already committed level-by-level in onSeqCardClick
     totalMoves    = state.totalMoves;
     totalTime     = state.totalTime;
     totalMistakes = state.totalMistakes;
@@ -1662,7 +1659,7 @@ function goMainMenu() {
   showScreen('menu');
 }
 
-// ============== EXPORT CSV ==============
+//EXPORT CSV 
 function exportCSV() {
   const students = Object.values(state.students);
   if(!students.length) { showToast('No student data yet!', 2000); return; }
@@ -1710,7 +1707,7 @@ function launchConfetti(n=40) {
     setTimeout(()=>el.remove(), 3000);
   }
 }
-// ============== SETTINGS & AUDIO ENGINE ==============
+//SETTINGS & AUDIO ENGINE
 const audioSettings = {
   sfxEnabled: true,
   sfxVolume: 0.8,
@@ -1730,7 +1727,7 @@ function saveAudioSettings() {
   try { localStorage.setItem('mmp_settings', JSON.stringify(audioSettings)); } catch(e) {}
 }
 
-// ── SFX helpers ──────────────────────────────────────────
+// SFX helpers
 const SFX = {
   btnHover:  document.getElementById('sfx-btn-hover'),
   btnPress:  document.getElementById('sfx-btn-press'),
@@ -1748,7 +1745,7 @@ function playSFX(audioEl) {
   audioEl.play().catch(()=>{});
 }
 
-// Named helpers used by game logic
+
 function sfxBtnPress()  { playSFX(SFX.btnPress);  }
 function sfxBtnHover()  { playSFX(SFX.btnHover);  }
 function sfxCardFlip()  { playSFX(SFX.cardFlip);  }
@@ -1756,7 +1753,7 @@ function sfxCardRight() { playSFX(SFX.cardRight); }
 function sfxCardWrong() { playSFX(SFX.cardWrong); }
 function sfxLevelDone() { playSFX(SFX.levelDone); }
 
-// ── Music helpers ─────────────────────────────────────────
+// Music helpers 
 function applyAudioSettings() {
   window.mmpAudio = audioSettings;
   const bg = document.getElementById('bg-music');
@@ -1777,7 +1774,7 @@ function startBgMusic() {
   if (bg.paused) bg.play().catch(()=>{});
 }
 
-// ── Settings modal ────────────────────────────────────────
+//  Settings modal 
 function openSettings() {
   $('#sfx-toggle').prop('checked', audioSettings.sfxEnabled);
   $('#music-toggle').prop('checked', audioSettings.musicEnabled);
@@ -1805,7 +1802,7 @@ $(function() {
   }
   attachButtonSFX($('button, .role-card, .catsel-card, .catsel-select-btn'));
 
-  // Also pick up dynamically added buttons
+ 
   $(document).on('mouseenter', 'button:not([data-sfx-bound])', function() {
     if (!$(this).data('sfx-bound')) {
       $(this).data('sfx-bound', true).on('mouseenter', sfxBtnHover).on('mousedown', sfxBtnPress);
@@ -1813,7 +1810,7 @@ $(function() {
     sfxBtnHover();
   });
 
-  // ── Open settings ──────────────────────────────────────
+  //Open settings
   $('#btn-settings').on('click', openSettings);
 
   // Toggle change – live preview
@@ -1864,13 +1861,13 @@ $(function() {
     showToast('✅ Settings saved!', 1800);
   });
 
-  // Close without saving (revert live music preview)
+  // Close without saving 
   $('#settings-close').on('click', function() {
     $('#settings-modal').removeClass('show');
     applyAudioSettings(); // revert any live preview changes
   });
 
-  // Start music on first user interaction (browser autoplay policy)
+  // Start music on first user interaction (browser autoplay)
   $(document).one('click keydown touchstart', function() {
     startBgMusic();
   });
@@ -1879,10 +1876,9 @@ $(function() {
   applyAudioSettings();
 });
 
-// ══════════════════════════════════════════════════════════════════
+
 // SEQUENCE GAME ENGINE
 // Cards are always face-up and shuffled. Player taps in correct order.
-// ══════════════════════════════════════════════════════════════════
 
 var seqState = {
   steps: [],           // [{label, correctIdx}] shuffled
@@ -1934,7 +1930,7 @@ function startSequenceGame() {
   updateSeqUI();
   showScreen('game');
 
-  // ── Exposure phase: show cards face-up WITHOUT order numbers ──
+  // Exposure phase: show cards face-up WITHOUT order numbers
   var expTime = EXPOSURE_TIME[state.difficulty];
 
   $('#exposure-label').html('👀 Memorise the cards! <b>' + round.title + '</b>');
@@ -1948,7 +1944,7 @@ function startSequenceGame() {
     $('#exposure-fill').css({ transition: 'width ' + expTime + 'ms linear', width: '0%' });
   }, 50);
 
-  // When exposure ends — flip all back face-down, unlock board, start timer
+  // When exposure ends flip all back face-down, unlock board, start timer
   setTimeout(function() {
     $('#card-grid .seq-card').removeClass('flipped');
     $('#exposure-label').html('🔢 <b>' + round.title + '</b> — tap the cards in the correct order!');
@@ -2010,7 +2006,7 @@ function onSeqCardClick($card) {
   $card.addClass('flipped');
 
   if (correctIdx === seqState.nextExpected) {
-    // ✅ Correct — stays face-up, green, badge appears now
+    // ✅ Correct stays face-up, green, badge appears now
     sfxCardRight();
     seqState.nextExpected++;
     $card.addClass('seq-done matched');
@@ -2033,7 +2029,7 @@ function onSeqCardClick($card) {
       setTimeout(levelComplete, 700);
     }
   } else {
-    // ❌ Wrong — briefly reveal the card, shake, flip back face-down
+    // ❌ Wrong briefly reveal the card, shake, flip back face-down
     sfxCardWrong();
     seqState.mistakes++;
     $card.addClass('seq-wrong');
